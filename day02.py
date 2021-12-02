@@ -15,8 +15,8 @@ def part_a(data):
                 horizontal += amount
             case "down":
                 depth += amount
-            case "up": depth -= amount
-
+            case "up":
+                depth -= amount
 
     return depth * horizontal
 
