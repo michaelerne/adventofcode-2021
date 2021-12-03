@@ -1,8 +1,15 @@
-from collections import Counter
 from math import ceil
+from typing import List, Callable
 
 from aocd import get_data, submit
-from typing import List, Callable
+
+
+def binary_to_decimal(input: List[int]) -> int:
+    dec = 0
+    for bit in input:
+        dec = dec << 1 | bit
+    return dec
+
 
 def part_a(data):
     lines = data.split('\n')
@@ -23,25 +30,23 @@ def part_a(data):
 def part_b(data):
     lines = data.split('\n')
 
+    def solve(matrix: List[List[int]], comparator: Callable[[int, int], bool]) -> int:
+        index: int = 0
+        while len(matrix) > 1:
+            majority = ceil(len(matrix) / 2)
+
+            transposed = list(map(list, zip(*matrix)))
+
+            most_common = 1 if sum([x for x in transposed[index]]) >= majority else 0
+            matrix = [row for row in matrix if comparator(most_common, row[index])]
+            index += 1
+
+        return binary_to_decimal(matrix[0])
+
     matrix = [[int(x) for x in line] for line in lines]
 
-    def rec(matrix: List[List[int]], index: int, bits: str, comparator: Callable[[int, int], bool]) -> List[int]:
-        if len(matrix) == 1:
-            return matrix[0]
-
-        majority = ceil(len(matrix) / 2)
-
-        transposed = list(map(list, zip(*matrix)))
-
-        most_common = 1 if sum([x for x in transposed[index]]) >= majority else 0
-        matrix = [row for row in matrix if comparator(most_common, row[index])]
-        index += 1
-        return rec(matrix, index, bits, comparator)
-
-    oxy_bits = rec(matrix, 0, '', lambda most_common, bit: most_common == bit)
-    co2_bits = rec(matrix, 0, '', lambda most_common, bit: most_common != bit)
-    oxy = int(''.join([str(x) for x in oxy_bits]), 2)
-    co2 = int(''.join([str(x) for x in co2_bits]), 2)
+    oxy = solve(matrix, lambda most_common, bit: most_common == bit)
+    co2 = solve(matrix, lambda most_common, bit: most_common != bit)
 
     return oxy * co2
 
