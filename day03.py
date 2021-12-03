@@ -1,107 +1,53 @@
-from collections import defaultdict, Counter
+from collections import Counter
+from math import ceil
 
 from aocd import get_data, submit
-
+from typing import List, Callable
 
 def part_a(data):
     lines = data.split('\n')
+    matrix = [[int(x) for x in line] for line in lines]
+    transposed = list(map(list, zip(*matrix)))
 
-    bits = defaultdict(Counter)
-    for line in lines:
-        for index, bit in enumerate([int(x) for x in line]):
-            bits[index][bit] += 1
+    majority = ceil(len(matrix) / 2)
 
-    gamma = 0
-
-    gamma_str = ''
-    epsilon = 0
-    epsilon_str = ''
-    for index, counter in bits.items():
-        if counter[0] > counter[1]:
-            most_common = 0
-            least_common = 1
-        else:
-            most_common = 1
-            least_common = 0
-
-        gamma += most_common * 2 ** index
-        gamma_str += str(most_common)
-        epsilon += least_common * 2 ** index
-        epsilon_str += str(least_common)
+    gamma_str = ''.join(['1' if sum(column) >= majority else '0' for column in transposed])
 
     gamma = int(gamma_str, 2)
-    epsilon = int(epsilon_str, 2)
+
+    epsilon = gamma ^ int(''.join(['1' for _ in range(len(gamma_str))]), 2)
+
     return gamma * epsilon
 
 
 def part_b(data):
     lines = data.split('\n')
 
-    oxy = lines.copy()
-    co2 = lines.copy()
+    matrix = [[int(x) for x in line] for line in lines]
 
-    lst = oxy
-    i = 0
-    while len(lst) > 1:
-        most_common = Counter()
-        for line in lst:
-            most_common[line[i]] += 1
+    def rec(matrix: List[List[int]], index: int, bits: str, comparator: Callable[[int, int], bool]) -> List[int]:
+        if len(matrix) == 1:
+            return matrix[0]
 
-        if most_common['1'] >= most_common['0']:
-            most_common = '1'
-        else:
-            most_common = '0'
+        majority = ceil(len(matrix) / 2)
 
-        new_lst = []
-        for line in lst:
-            if line[i] == most_common:
-                new_lst.append(line)
+        transposed = list(map(list, zip(*matrix)))
 
-        lst = new_lst
-        i += 1
-    oxy = int(lst[0], 2)
+        most_common = 1 if sum([x for x in transposed[index]]) >= majority else 0
+        matrix = [row for row in matrix if comparator(most_common, row[index])]
+        index += 1
+        return rec(matrix, index, bits, comparator)
 
+    oxy_bits = rec(matrix, 0, '', lambda most_common, bit: most_common == bit)
+    co2_bits = rec(matrix, 0, '', lambda most_common, bit: most_common != bit)
+    oxy = int(''.join([str(x) for x in oxy_bits]), 2)
+    co2 = int(''.join([str(x) for x in co2_bits]), 2)
 
-    lst = co2
-    i = 0
-    while len(lst) > 1:
-        most_common = Counter()
-        for line in lst:
-            most_common[line[i]] += 1
-
-        if most_common['1'] < most_common['0']:
-            most_common = '1'
-        else:
-            most_common = '0'
-
-        new_lst = []
-        for line in lst:
-            if line[i] == most_common:
-                new_lst.append(line)
-
-        lst = new_lst
-        i += 1
-    co2 = int(lst[0], 2)
-
-    res = oxy * co2
-    return res
+    return oxy * co2
 
 
 def main():
     data = get_data()
-
-#     data = """00100
-# 11110
-# 10110
-# 10111
-# 10101
-# 01111
-# 00111
-# 11100
-# 10000
-# 11001
-# 00010
-# 01010"""
 
     answer_a = part_a(data)
     submit(answer=answer_a, part="a")
