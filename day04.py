@@ -24,13 +24,17 @@ def transpose(board):
     return list(map(list, zip(*board)))
 
 
+def won(board, seen_numbers):
+    return any([all([number in seen_numbers for number in line]) for line in board + transpose(board)])
+
+
 def part_a(data):
     numbers, boards = parse_data(data)
 
     for i in range(len(numbers)):
         seen_numbers = numbers[0:i]
         for board in boards:
-            if any([all([number in seen_numbers for number in line]) for line in board + transpose(board)]):
+            if won(board, seen_numbers):
                 return calc_score(board, seen_numbers)
 
 
@@ -42,15 +46,13 @@ def part_b(data):
 
         remaining_boards = [
             board for board in boards
-            if not any([all([number in seen_numbers for number in line]) for line in board + transpose(board)])
+            if not won(board, seen_numbers)
         ]
 
         if not remaining_boards:
             return calc_score(boards[0], seen_numbers)
         else:
             boards = remaining_boards
-
-
 
 
 def main():
