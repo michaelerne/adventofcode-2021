@@ -20,48 +20,37 @@ def parse_data(data):
     return numbers, boards
 
 
+def transpose(board):
+    return list(map(list, zip(*board)))
+
+
 def part_a(data):
     numbers, boards = parse_data(data)
 
     for i in range(len(numbers)):
         seen_numbers = numbers[0:i]
         for board in boards:
-            board_transposed = list(map(list, zip(*board)))
-            for line in board:
-                if all([number in seen_numbers for number in line]):
-                    return calc_score(board, seen_numbers)
-            for line in board_transposed:
-                if all([number in seen_numbers for number in line]):
-                    return calc_score(board, seen_numbers)
+            if any([all([number in seen_numbers for number in line]) for line in board + transpose(board)]):
+                return calc_score(board, seen_numbers)
 
 
 def part_b(data):
     numbers, boards = parse_data(data)
 
-    board_idx_won = []
-
     for i in range(len(numbers)):
         seen_numbers = numbers[0:i]
 
-        for board_idx, board in enumerate(boards):
+        remaining_boards = [
+            board for board in boards
+            if not any([all([number in seen_numbers for number in line]) for line in board + transpose(board)])
+        ]
 
-            if board_idx in board_idx_won:
-                continue
+        if not remaining_boards:
+            return calc_score(boards[0], seen_numbers)
+        else:
+            boards = remaining_boards
 
-            board_transposed = list(map(list, zip(*board)))
-            won = False
-            for line in board:
-                if all([number in seen_numbers for number in line]):
-                    won = True
-            for line in board_transposed:
-                if all([number in seen_numbers for number in line]):
-                    won = True
 
-            if won:
-                if len(boards) - len(board_idx_won) == 1:
-                    return calc_score(board, seen_numbers)
-
-                board_idx_won.append(board_idx)
 
 
 def main():
