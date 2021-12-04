@@ -3,31 +3,24 @@ from aocd import get_data, submit
 
 def calc_score(board, seen_numbers):
     last_number = seen_numbers[-1]
-    sum = 0
-    for line in board:
-        for number in line:
-            if number not in seen_numbers:
-                sum += number
-    return sum * last_number
+    sum_seen = sum([number for line in board for number in line if number not in seen_numbers])
 
+    return sum_seen * last_number
+
+
+def parse_data(data):
+    lines = data.strip().split('\n')
+
+    numbers = [int(x) for x in lines[0].split(",")]
+    boards = [
+        [[int(number) for number in line.split()] for line in board]
+        for board in [lines[2 + x:2 + x + 5] for x in range(0, len(lines) - 1, 6)]
+    ]
+
+    return numbers, boards
 
 def part_a(data):
-    lines = data.strip().split('\n')
-    numbers = [int(x) for x in lines[0].split(',')]
-    boards = []
-    board = []
-    for line in lines[2:]:
-        if line == '':
-            boards.append(board)
-            board = []
-            continue
-        board_line = []
-        for x in line.split(' '):
-            if x == '':
-                continue
-            board_line.append(int(x))
-        board.append(board_line)
-    boards.append(board)
+    numbers, boards = parse_data(data)
 
     for i in range(len(numbers)):
         seen_numbers = numbers[0:i]
@@ -42,22 +35,7 @@ def part_a(data):
 
 
 def part_b(data):
-    lines = data.strip().split('\n')
-    numbers = [int(x) for x in lines[0].split(',')]
-    boards = []
-    board = []
-    for line in lines[2:]:
-        if line == '':
-            boards.append(board)
-            board = []
-            continue
-        board_line = []
-        for x in line.split(' '):
-            if x == '':
-                continue
-            board_line.append(int(x))
-        board.append(board_line)
-    boards.append(board)
+    numbers, boards = parse_data(data)
 
     board_idx_won = []
 
@@ -65,6 +43,10 @@ def part_b(data):
         seen_numbers = numbers[0:i]
 
         for board_idx, board in enumerate(boards):
+
+            if board_idx in board_idx_won:
+                continue
+
             board_transposed = list(map(list, zip(*board)))
             won = False
             for line in board:
@@ -75,11 +57,10 @@ def part_b(data):
                     won = True
 
             if won:
-                if board_idx not in board_idx_won:
-                    if len(boards) - len(board_idx_won) == 1:
-                        return calc_score(board, seen_numbers)
+                if len(boards) - len(board_idx_won) == 1:
+                    return calc_score(board, seen_numbers)
 
-                    board_idx_won.append(board_idx)
+                board_idx_won.append(board_idx)
 
 
 def main():
