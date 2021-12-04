@@ -19,6 +19,7 @@ def parse_data(data):
 
     return numbers, boards
 
+
 def part_a(data):
     numbers, boards = parse_data(data)
 
