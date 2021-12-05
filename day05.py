@@ -1,97 +1,65 @@
 from collections import defaultdict
+from itertools import repeat
+from typing import Tuple
 
+import parse
 from aocd import get_data, submit
+
+Point = Tuple[int, int]
+
+
+def parse_data(data):
+    numbers = [tuple(parse.parse('{:d},{:d} -> {:d},{:d}', line).fixed) for line in data.split('\n')]
+    return [((x1, y1), (x2, y2)) for x1, y1, x2, y2 in numbers]
+
+
+def get_gen(x1, x2):
+    if x1 == x2:
+        return repeat(x1)
+    step = -1 if x1 > x2 else 1
+    return range(x1, x2 + step, step)
+
+
+def get_points(p1: Point, p2: Point, allow_diagonal=False):
+    x1, y1 = p1
+    x2, y2 = p2
+
+    if not allow_diagonal:
+        if x1 != x2 and y1 != y2:
+            return []
+
+    x_gen = get_gen(x1, x2)
+    y_gen = get_gen(y1, y2)
+
+    return zip(x_gen, y_gen)
 
 
 def part_a(data):
-    data_lines = data.split('\n')
-    lines = []
-    for data_line in data_lines:
-        left, _, right = data_line.split(' ')
-        from_x, from_y = left.split(',')
-        to_x, to_y = right.split(',')
-        lines.append([[int(from_x), int(from_y)], [int(to_x), int(to_y)]])
+    lines = parse_data(data)
+    map = defaultdict(int)
 
-    map = defaultdict(lambda: 0)
+    for start, end in lines:
+        for point in get_points(start, end):
+            map[point] += 1
 
-    for from_c, to_c in lines:
-        from_x, from_y = from_c
-        to_x, to_y = to_c
-
-        if from_x == to_x and from_y != to_y:
-            # vertical
-            min_val = min(from_y, to_y)
-            max_val = max(from_y, to_y)
-            vals = list(range(min_val, max_val + 1))
-            for y in vals:
-                map[(from_x, y)] += 1
-        elif from_x != to_x and from_y == to_y:
-            min_val = min(from_x, to_x)
-            max_val = max(from_x, to_x)
-            vals = list(range(min_val, max_val + 1))
-            for x in vals:
-                map[(x, from_y)] += 1
-
-    count = 0
-    for coords, value in map.items():
-        if value >= 2:
-            count += 1
-
+    count = len([x for x in map.values() if x >= 2])
     return count
 
 
 def part_b(data):
-    data_lines = data.split('\n')
-    lines = []
-    for data_line in data_lines:
-        left, _, right = data_line.split(' ')
-        from_x, from_y = left.split(',')
-        to_x, to_y = right.split(',')
-        lines.append([[int(from_x), int(from_y)], [int(to_x), int(to_y)]])
+    lines = parse_data(data)
+    map = defaultdict(int)
 
-    map = defaultdict(lambda: 0)
+    for start, end in lines:
+        for point in get_points(start, end, allow_diagonal=True):
+            map[point] += 1
 
-    def get_gen(from_val, to_val):
-        if from_val == to_val:
-            return [from_val for _ in range(10000)]
-        if from_val > to_val:
-            return range(from_val, to_val - 1, -1)
-        else:
-            return range(from_val, to_val + 1)
-
-    for from_c, to_c in lines:
-        from_x, from_y = from_c
-        to_x, to_y = to_c
-
-        x_gen = get_gen(from_x, to_x)
-        y_gen = get_gen(from_y, to_y)
-
-        points = [(x, y) for x, y in zip(x_gen, y_gen)]
-
-        for coords in points:
-            map[coords] += 1
-
-    count = 0
-    for coords, value in map.items():
-        if value >= 2:
-            count += 1
-
+    count = len([x for x in map.values() if x >= 2])
     return count
 
 
 def main():
     data = get_data()
-
-    #     data = """0,9 -> 5,9
-    # 8,0 -> 0,8
-    # 9,4 -> 3,4
-    # 2,2 -> 2,1
-    # 7,0 -> 7,4
-    # 6,4 -> 2,0
-    # 0,9 -> 2,9
-    # 3,4 -> 1,4
-    # 0,0 -> 8,8
-    # 5,5 -> 8,2"""
 
     answer_a = part_a(data)
     submit(answer=answer_a, part="a")
