@@ -9,7 +9,7 @@ Point = Tuple[int, int]
 
 
 def parse_data(data):
-    numbers = [tuple(parse.parse('{:d},{:d} -> {:d},{:d}', line).fixed) for line in data.split('\n')]
+    numbers = [parse.parse('{:d},{:d} -> {:d},{:d}', line).fixed for line in data.split('\n')]
     return [((x1, y1), (x2, y2)) for x1, y1, x2, y2 in numbers]
 
 
