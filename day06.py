@@ -11,7 +11,7 @@ def age(swarm) -> Counter:
     new_swarm = Counter()
 
     for index in range(0, 8):
-        new_swarm[index] = swarm[index+1]
+        new_swarm[index] = swarm[index + 1]
 
     new_swarm[6] += swarm[0]
     new_swarm[8] = swarm[0]
@@ -45,15 +45,17 @@ def main():
     data = get_data()
 
     example_data = """3,4,3,1,2"""
+    example_solution_a = 5934
+    example_solution_b = 26984457539
 
     example_answer_a = part_a(example_data)
-    assert example_answer_a == 5934, "example_data did not match for part_a"
+    assert example_answer_a == example_solution_a, "example_data did not match for part_a"
 
     answer_a = part_a(data)
     submit(answer=answer_a, part="a")
 
     example_answer_b = part_b(example_data)
-    assert example_answer_b == 26984457539, "example_data did not match for part_b"
+    assert example_answer_b == example_solution_b, "example_data did not match for part_b"
 
     answer_b = part_b(data)
     submit(answer=answer_b, part="b")
