@@ -1,22 +1,16 @@
-from collections import Counter
-
+from typing import List
 from aocd import get_data, submit
 
 
-def parse_data(data: str) -> Counter[int]:
-    return Counter(int(x) for x in data.strip().split(','))
+def parse_data(data: str) -> List[int]:
+    input = [int(x) for x in data.strip().split(',')]
+    return [input.count(i) for i in range(9)]
 
 
-def age(swarm) -> Counter:
-    new_swarm = Counter()
-
-    for index in range(0, 8):
-        new_swarm[index] = swarm[index + 1]
-
-    new_swarm[6] += swarm[0]
-    new_swarm[8] = swarm[0]
-
-    return new_swarm
+def age(swarm) -> List[int]:
+    swarm = swarm[1:] + swarm[:1]
+    swarm[6] += swarm[-1]
+    return swarm
 
 
 def part_a(data):
@@ -27,7 +21,7 @@ def part_a(data):
     for _ in range(days):
         swarm = age(swarm)
 
-    return len(swarm)
+    return sum(swarm)
 
 
 def part_b(data):
@@ -38,7 +32,7 @@ def part_b(data):
     for _ in range(days):
         swarm = age(swarm)
 
-    return sum(swarm.values())
+    return sum(swarm)
 
 
 def main():
@@ -49,7 +43,7 @@ def main():
     example_solution_b = 26984457539
 
     example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, "example_data did not match for part_a"
+    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_solution_a} != {example_answer_a}"
 
     answer_a = part_a(data)
     submit(answer=answer_a, part="a")
