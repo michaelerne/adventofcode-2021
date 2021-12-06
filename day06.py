@@ -7,7 +7,7 @@ def part_a(data):
 
 
 def part_b(data):
-    return 'None'
+    return ''
 
 
 def main():
