@@ -7,7 +7,7 @@ def parse_data(data: str) -> List[int]:
     return [input.count(i) for i in range(9)]
 
 
-def age(swarm) -> List[int]:
+def age(swarm: List[int]) -> List[int]:
     swarm = swarm[1:] + swarm[:1]
     swarm[6] += swarm[-1]
     return swarm
