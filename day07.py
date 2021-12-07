@@ -1,7 +1,8 @@
 from functools import cache
+from statistics import median
 
 from aocd import get_data, submit
-from statistics import median
+
 
 def part_a(data):
     positions = [int(x) for x in data.strip().split(',')]
