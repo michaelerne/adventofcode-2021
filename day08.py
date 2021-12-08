@@ -32,7 +32,7 @@ def get_mapping(signals):
                 mapping[8] = signal
 
     segments[Segment.TOP] = mapping[7] - mapping[4]
-    mapping[3] = next(pattern for pattern in signals if len(pattern) == 5 and mapping[1].issubset(pattern))
+    mapping[3] = next(pattern for pattern in signals if len(pattern) == 5 and mapping[1] <= pattern)
     segments[Segment.TOP_LEFT] = mapping[4] - mapping[3]
     segments[Segment.MIDDLE] = mapping[4] - mapping[1] - segments[Segment.TOP_LEFT]
     segments[Segment.BOTTOM] = mapping[3] - mapping[4] - segments[Segment.TOP]
@@ -40,7 +40,7 @@ def get_mapping(signals):
     mapping[0] = mapping[8] - segments[Segment.MIDDLE]
     segments[Segment.BOTTOM_LEFT] = mapping[0] - mapping[3] - segments[Segment.TOP_LEFT]
 
-    mapping[5] = next(pattern for pattern in signals if len(pattern) == 5 and segments[Segment.TOP_LEFT].issubset(pattern))
+    mapping[5] = next(pattern for pattern in signals if len(pattern) == 5 and segments[Segment.TOP_LEFT] <= pattern)
     segments[Segment.TOP_RIGHT] = mapping[1] - mapping[5]
     segments[Segment.BOTTOM_RIGHT] = mapping[1] - segments[Segment.TOP_RIGHT]
 
