@@ -1,80 +1,81 @@
-import itertools
+import enum
+from typing import Dict, Set, List, Tuple
 
 from aocd import get_data, submit
 
 
-def part_a(data):
-    number_lookup = {
-        0: ['a', 'b', 'c', 'e', 'f', 'g'],
-        1: ['c', 'f'],
-        2: ['a', 'c', 'd', 'e', 'g'],
-        3: ['a', 'c', 'd', 'f', 'g'],
-        4: ['b', 'c', 'd', 'f'],
-        5: ['a', 'b', 'd', 'f', 'g'],
-        6: ['a', 'b', 'd', 'e', 'f', 'g'],
-        7: ['a', 'c', 'f'],
-        8: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
-        9: ['a', 'b', 'c', 'd', 'f', 'g']
-    }
-
-    digs = [1, 4, 7, 8]
-    lens = [len(number_lookup[x]) for x in digs]
-    lines = [x for x in data.split('\n')]
-
-    signals = []
-    outputs = []
-
-    for line in lines:
-        signal, output = line.split(' | ')
-        signals.append(signal.split(' '))
-        outputs.append(output.split(' '))
-    i = 0
-    for output in outputs:
-        for o in output:
-            if len(o) in lens:
-                i += 1
-    return i
+class Segment(enum.Enum):
+    TOP = 1
+    TOP_LEFT = 2
+    TOP_RIGHT = 3
+    MIDDLE = 4
+    BOTTOM_LEFT = 5
+    BOTTOM_RIGHT = 6
+    BOTTOM = 7
 
 
-def part_b(data):
-    lines = [x for x in data.split('\n')]
+def get_mapping(signals):
+    mapping: Dict[int, Set[str]] = {}
+    segments: Dict[Segment, Set[str]] = {}
 
-    mapping = {
-        "acedgfb": 8,
-        "cdfbe": 5,
-        "gcdfa": 2,
-        "fbcad": 3,
-        "dab": 7,
-        "cefabd": 9,
-        "cdfgeb": 6,
-        "eafb": 4,
-        "cagedb": 0,
-        "ab": 1
-    }
+    for signal in signals:
+        match len(signal):
+            case 2:
+                mapping[1] = signal
+            case 3:
+                mapping[7] = signal
+            case 4:
+                mapping[4] = signal
+            case 7:
+                mapping[8] = signal
 
-    mapping = {
-        "".join(sorted(k)): v
+    segments[Segment.TOP] = mapping[7] - mapping[4]
+    mapping[3] = [pattern for pattern in signals if len(pattern) == 5 and mapping[1].issubset(pattern)][0]
+    segments[Segment.TOP_LEFT] = mapping[4] - mapping[3]
+    segments[Segment.MIDDLE] = mapping[4] - mapping[1] - segments[Segment.TOP_LEFT]
+    segments[Segment.BOTTOM] = mapping[3] - mapping[4] - segments[Segment.TOP]
+
+    mapping[0] = mapping[8] - segments[Segment.MIDDLE]
+    segments[Segment.BOTTOM_LEFT] = mapping[0] - mapping[3] - segments[Segment.TOP_LEFT]
+
+    mapping[5] = [pattern for pattern in signals if len(pattern) == 5 and segments[Segment.TOP_LEFT].issubset(pattern)][0]
+    segments[Segment.TOP_RIGHT] = mapping[1] - mapping[5]
+    segments[Segment.BOTTOM_RIGHT] = mapping[1] - segments[Segment.TOP_RIGHT]
+
+    mapping[2] = mapping[3] - segments[Segment.BOTTOM_RIGHT] | segments[Segment.BOTTOM_LEFT]
+    mapping[6] = mapping[5] | segments[Segment.BOTTOM_LEFT]
+    mapping[9] = mapping[8] - segments[Segment.BOTTOM_LEFT]
+
+    reverse_mapping = {
+        ''.join(sorted(v)): str(k)
         for k, v in mapping.items()
     }
 
+    return reverse_mapping
+
+
+def parse_data(data) -> List[Tuple[List[Set[str]], List[str]]]:
+    for line in data.split('\n'):
+        left, right = line.split(' | ')
+        signals = [set(signal) for signal in left.split()]
+        outputs = [''.join(sorted(output)) for output in right.split()]
+        yield signals, outputs
+
+
+def part_a(data):
     answer = 0
+    desired_lenghts = {2, 3, 4, 7}
+    for _signals, outputs in parse_data(data):
+        answer += sum([len(output) in desired_lenghts for output in outputs])
+    return answer
 
-    for line in lines:
-        signal, output = line.split(' | ')
-        signals = signal.split(' ')
-        outputs = output.split(' ')
 
-        for permutation in itertools.permutations("abcdefg"):
-            scramble = {
-                signals: outputs for signals, outputs
-                in zip(permutation, "abcdefg")
-            }
+def part_b(data):
+    answer = 0
+    for signals, outputs in parse_data(data):
+        mapping = get_mapping(signals)
+        answer += int(''.join([mapping[output] for output in outputs]))
 
-            scrambled_signals = ["".join(sorted(scramble[c] for c in signal)) for signal in signals]
-            if all(scrambled_signal in mapping for scrambled_signal in scrambled_signals):
-                scrambled_outputs = ["".join(sorted(scramble[c] for c in output)) for output in outputs]
-                answer += int("".join(str(mapping[x]) for x in scrambled_outputs))
-                break
     return answer
 
 
