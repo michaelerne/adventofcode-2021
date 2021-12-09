@@ -45,18 +45,18 @@ def part_b(data):
 
     lowest_points = get_lowest_points(grid)
 
-    def expand(grid, points, point):
+    def expand(grid, seen, point):
         if point not in grid or grid[point] == 9:
-            return points
+            return seen
 
-        points.add(point)
+        seen.add(point)
         neighbors = get_neighbors(grid, *point)
 
         for neighbor in neighbors:
-            if neighbor not in points:
-                points = points | expand(grid, points, neighbor)
+            if neighbor not in seen:
+                seen = seen | expand(grid, seen, neighbor)
 
-        return points
+        return seen
 
     basins = {point: expand(grid, set(), point) for point in lowest_points}
 
