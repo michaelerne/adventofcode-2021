@@ -8,8 +8,10 @@ D_XY = list(zip(D_X, D_Y))
 
 
 def get_neighbors(coords, x, y):
-    neighbors = [(x + dx, y + dy) for dx, dy in D_XY if (x + dx, y + dy) in coords]
-    return neighbors
+    return [
+        (x + dx, y + dy)
+        for dx, dy in D_XY if (x + dx, y + dy) in coords
+    ]
 
 
 def parse_data(data):
@@ -21,23 +23,20 @@ def parse_data(data):
 
 
 def get_lowest_points(grid):
-    lowest_points = []
-    for point in grid.keys():
-        neighbors = get_neighbors(grid, *point)
-        own_value = grid[point]
-        neighbor_values = [grid[neighbor] for neighbor in neighbors if neighbor in grid]
-        if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
-            lowest_points.append(point)
-    return lowest_points
-
+    return [
+        point
+        for point in grid.keys()
+        if all([grid[neighbor] > grid[point] for neighbor in get_neighbors(grid, *point) if neighbor in grid])
+    ]
 
 
 def part_a(data):
     grid = parse_data(data)
 
-    risk = sum([1 + grid[point] for point in get_lowest_points(grid)])
-
-    return risk
+    return sum([
+        1 + grid[point]
+        for point in get_lowest_points(grid)
+    ])
 
 
 def part_b(data):
@@ -58,7 +57,10 @@ def part_b(data):
 
         return seen
 
-    basins = {point: expand(grid, set(), point) for point in lowest_points}
+    basins = {
+        point: expand(grid, set(), point)
+        for point in lowest_points
+    }
 
     return math.prod([len(basin) for basin in sorted(basins.values(), key=len)[-3:]])
 
