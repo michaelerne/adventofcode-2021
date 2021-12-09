@@ -26,7 +26,6 @@ def part_a(data):
     risk = 0
     for point in coords.keys():
         neighbors = get_neighbors(coords, *point)
-        assert len(neighbors) > 1
         own_value = coords[point]
         neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
         if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
