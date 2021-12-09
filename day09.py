@@ -20,46 +20,45 @@ def parse_data(data):
     }
 
 
-def part_a(data):
-    coords = parse_data(data)
-
-    risk = 0
-    for point in coords.keys():
-        neighbors = get_neighbors(coords, *point)
-        own_value = coords[point]
-        neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
+def get_lowest_points(grid):
+    lowest_points = []
+    for point in grid.keys():
+        neighbors = get_neighbors(grid, *point)
+        own_value = grid[point]
+        neighbor_values = [grid[neighbor] for neighbor in neighbors if neighbor in grid]
         if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
-            risk += 1 + own_value
+            lowest_points.append(point)
+    return lowest_points
+
+
+
+def part_a(data):
+    grid = parse_data(data)
+
+    risk = sum([1 + grid[point] for point in get_lowest_points(grid)])
 
     return risk
 
 
 def part_b(data):
-    coords = parse_data(data)
+    grid = parse_data(data)
 
-    low_points = []
-    for point in coords.keys():
-        neighbors = get_neighbors(coords, *point)
+    lowest_points = get_lowest_points(grid)
 
-        own_value = coords[point]
-        neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
-        if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
-            low_points.append(point)
-
-    def expand(coords, points, point):
-        if point not in coords or coords[point] == 9:
+    def expand(grid, points, point):
+        if point not in grid or grid[point] == 9:
             return points
 
         points.add(point)
-        neighbors = get_neighbors(coords, *point)
+        neighbors = get_neighbors(grid, *point)
 
         for neighbor in neighbors:
             if neighbor not in points:
-                points = points | expand(coords, points, neighbor)
+                points = points | expand(grid, points, neighbor)
 
         return points
 
-    basins = {point: expand(coords, set(), point) for point in low_points}
+    basins = {point: expand(grid, set(), point) for point in lowest_points}
 
     return math.prod([len(basin) for basin in sorted(basins.values(), key=len)[-3:]])
 
