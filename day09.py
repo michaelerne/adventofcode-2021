@@ -1,5 +1,5 @@
 import math
-
+from collections import deque
 from aocd import get_data, submit
 
 D_X = [-1, 0, 1, 0]
@@ -39,21 +39,25 @@ def part_a(data):
     ])
 
 
+def get_basin(grid, point):
+    basin = {point}
+    queue = deque(basin)
+
+    while queue:
+        point = queue.pop()
+        for neighbor in get_neighbors(grid, *point):
+            if neighbor not in basin and grid[neighbor] != 9:
+                basin.add(neighbor)
+                queue.append(neighbor)
+
+    return basin
+
+
 def part_b(data):
     grid = parse_data(data)
 
-    def expand(grid, seen, point):
-        if point in seen or point not in grid or grid[point] == 9:
-            return seen
-
-        seen.add(point)
-        for neighbor in get_neighbors(grid, *point):
-            seen = seen | expand(grid, seen, neighbor)
-
-        return seen
-
     basins = {
-        point: expand(grid, set(), point)
+        point: get_basin(grid, point)
         for point in get_lowest_points(grid)
     }
 
