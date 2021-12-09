@@ -1,14 +1,14 @@
+import math
+
 from aocd import get_data, submit
-import parse
 
 
 def parse_data(data):
-    coords = {}
-    lines = data.split('\n')
-    for y, line in enumerate(lines):
-        for x, col in enumerate(line):
-            coords[(x, y)] = int(col)
-    return coords
+    return {
+        (x, y): int(cell)
+        for y, line in enumerate(data.split('\n'))
+        for x, cell in enumerate(line)
+    }
 
 
 def part_a(data):
@@ -16,20 +16,12 @@ def part_a(data):
 
     risk = 0
     for x, y in coords.keys():
-        neighbors = [
-            (x-1, y),
-            (x+1, y),
-            (x, y-1),
-            (x, y+1),
-        ]
+        neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1), ]
 
-        own_val = coords[(x, y)]
-        neighbor_vals = []
-        for neighbor in neighbors:
-            if neighbor in coords:
-                neighbor_vals.append(coords[neighbor])
-        if all([neighbor_val > own_val for neighbor_val in neighbor_vals]):
-            risk += 1 + own_val
+        own_value = coords[(x, y)]
+        neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
+        if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
+            risk += 1 + own_value
 
     return risk
 
@@ -39,19 +31,11 @@ def part_b(data):
 
     low_points = []
     for x, y in coords.keys():
-        neighbors = [
-            (x-1, y),
-            (x+1, y),
-            (x, y-1),
-            (x, y+1),
-        ]
+        neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
 
-        own_val = coords[(x, y)]
-        neighbor_vals = []
-        for neighbor in neighbors:
-            if neighbor in coords:
-                neighbor_vals.append(coords[neighbor])
-        if all([neighbor_val > own_val for neighbor_val in neighbor_vals]):
+        own_value = coords[(x, y)]
+        neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
+        if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
             low_points.append((x, y))
 
     def expand(coords, points, x, y):
@@ -59,27 +43,18 @@ def part_b(data):
             return points
 
         points.add((x, y))
-        neighbors = [
-            (x-1, y),
-            (x+1, y),
-            (x, y-1),
-            (x, y+1),
-        ]
+        neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+
         for neighbor in neighbors:
             if neighbor not in points:
-                new_points = expand(coords, points, *neighbor)
-                points = points | new_points
+                points = points | expand(coords, points, *neighbor)
 
         return points
 
-    basins = {}
-    for x, y in low_points:
-        basins[(x, y)] = expand(coords, set(), x, y)
+    basins = {(x, y): expand(coords, set(), x, y) for x, y in low_points}
 
-    basins = list(basins.values())
-    basins_lens = [len(basin) for basin in basins]
-    top_3 = sorted(basins_lens, reverse=True)[:3]
-    return top_3[0] * top_3[1] * top_3[2]
+    return math.prod([len(basin) for basin in sorted(basins.values(), key=len)[-3:]])
+
 
 def main():
     data = get_data()
