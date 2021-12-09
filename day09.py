@@ -7,10 +7,10 @@ D_Y = [0, -1, 0, 1]
 D_XY = list(zip(D_X, D_Y))
 
 
-def get_neighbors(coords, x, y):
+def get_neighbors(grid, x, y):
     return [
         (x + dx, y + dy)
-        for dx, dy in D_XY if (x + dx, y + dy) in coords
+        for dx, dy in D_XY if (x + dx, y + dy) in grid
     ]
 
 
@@ -42,27 +42,25 @@ def part_a(data):
 def part_b(data):
     grid = parse_data(data)
 
-    lowest_points = get_lowest_points(grid)
-
     def expand(grid, seen, point):
-        if point not in grid or grid[point] == 9:
+        if point in seen or point not in grid or grid[point] == 9:
             return seen
 
         seen.add(point)
-        neighbors = get_neighbors(grid, *point)
-
-        for neighbor in neighbors:
-            if neighbor not in seen:
-                seen = seen | expand(grid, seen, neighbor)
+        for neighbor in get_neighbors(grid, *point):
+            seen = seen | expand(grid, seen, neighbor)
 
         return seen
 
     basins = {
         point: expand(grid, set(), point)
-        for point in lowest_points
+        for point in get_lowest_points(grid)
     }
 
-    return math.prod([len(basin) for basin in sorted(basins.values(), key=len)[-3:]])
+    return math.prod([
+        len(basin)
+        for basin in sorted(basins.values(), key=len)[-3:]
+    ])
 
 
 def main():
