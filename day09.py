@@ -2,6 +2,15 @@ import math
 
 from aocd import get_data, submit
 
+D_X = [-1, 0, 1, 0]
+D_Y = [0, -1, 0, 1]
+D_XY = list(zip(D_X, D_Y))
+
+
+def get_neighbors(coords, x, y):
+    neighbors = [(x + dx, y + dy) for dx, dy in D_XY if (x + dx, y + dy) in coords]
+    return neighbors
+
 
 def parse_data(data):
     return {
@@ -15,10 +24,10 @@ def part_a(data):
     coords = parse_data(data)
 
     risk = 0
-    for x, y in coords.keys():
-        neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1), ]
-
-        own_value = coords[(x, y)]
+    for point in coords.keys():
+        neighbors = get_neighbors(coords, *point)
+        assert len(neighbors) > 1
+        own_value = coords[point]
         neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
         if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
             risk += 1 + own_value
@@ -30,28 +39,28 @@ def part_b(data):
     coords = parse_data(data)
 
     low_points = []
-    for x, y in coords.keys():
-        neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+    for point in coords.keys():
+        neighbors = get_neighbors(coords, *point)
 
-        own_value = coords[(x, y)]
+        own_value = coords[point]
         neighbor_values = [coords[neighbor] for neighbor in neighbors if neighbor in coords]
         if all([neighbor_value > own_value for neighbor_value in neighbor_values]):
-            low_points.append((x, y))
+            low_points.append(point)
 
-    def expand(coords, points, x, y):
-        if (x, y) not in coords or coords[(x, y)] == 9:
+    def expand(coords, points, point):
+        if point not in coords or coords[point] == 9:
             return points
 
-        points.add((x, y))
-        neighbors = [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+        points.add(point)
+        neighbors = get_neighbors(coords, *point)
 
         for neighbor in neighbors:
             if neighbor not in points:
-                points = points | expand(coords, points, *neighbor)
+                points = points | expand(coords, points, neighbor)
 
         return points
 
-    basins = {(x, y): expand(coords, set(), x, y) for x, y in low_points}
+    basins = {point: expand(coords, set(), point) for point in low_points}
 
     return math.prod([len(basin) for basin in sorted(basins.values(), key=len)[-3:]])
 
