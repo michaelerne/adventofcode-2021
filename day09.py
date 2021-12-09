@@ -1,5 +1,6 @@
 import math
 from collections import deque
+
 from aocd import get_data, submit
 
 D_X = [-1, 0, 1, 0]
