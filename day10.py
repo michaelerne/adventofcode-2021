@@ -1,6 +1,4 @@
 from aocd import get_data, submit
-import parse
-
 
 chunk_delims = {
     '(': ')',
@@ -9,6 +7,7 @@ chunk_delims = {
     '<': '>'
 
 }
+
 
 def part_a(data):
     lines = data.split('\n')
@@ -66,7 +65,7 @@ def part_b(data):
 
             scores.append(score)
 
-    return sorted(scores)[len(scores)//2]
+    return sorted(scores)[len(scores) // 2]
 
 
 def main():
