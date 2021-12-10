@@ -23,21 +23,15 @@ def part_a(data):
     score = 0
     for line in lines:
         stack = []
-        corrupted = False
         for char in line:
-            if corrupted:
-                continue
-
             if char in chunk_delims.keys():
                 stack.append(char)
-                continue
-            if char in chunk_delims.values():
+            else:
                 if char == chunk_delims[stack[-1]]:
                     stack.pop()
-                    continue
                 else:
-                    corrupted = True
                     score += points[char]
+                    break
 
     return score
 
@@ -58,11 +52,9 @@ def part_b(data):
         for char in line:
             if char in chunk_delims.keys():
                 stack.append(char)
-                continue
-            if char in chunk_delims.values():
+            else:
                 if char == chunk_delims[stack[-1]]:
                     stack.pop()
-                    continue
                 else:
                     corrupted = True
                     break
