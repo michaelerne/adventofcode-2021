@@ -68,9 +68,8 @@ def part_b(data):
                     break
         if not corrupted:
             score = 0
-            while stack:
+            for char in reversed(stack):
                 score *= 5
-                char = stack.pop()
                 score += points[chunk_delims[char]]
 
             scores.append(score)
