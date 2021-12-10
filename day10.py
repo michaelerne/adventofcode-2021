@@ -52,7 +52,6 @@ def part_b(data):
         '>': 4
     }
 
-    ok_lines = []
     for line in lines:
         stack = []
         corrupted = False
@@ -70,24 +69,13 @@ def part_b(data):
                 else:
                     corrupted = True
         if not corrupted:
-            ok_lines.append(line)
+            score = 0
+            while stack:
+                score *= 5
+                char = stack.pop()
+                score += points[chunk_delims[char]]
 
-    for line in ok_lines:
-        stack = []
-        for char in line:
-            if char in chunk_delims.keys():
-                stack.append(char)
-                continue
-            if char in chunk_delims.values():
-                stack.pop()
-                continue
-        score = 0
-        while stack:
-            score *= 5
-            char = stack.pop()
-            score += points[chunk_delims[char]]
-
-        scores.append(score)
+            scores.append(score)
 
     scores.sort()
     return scores[int(len(scores)/2)]
