@@ -56,9 +56,6 @@ def part_b(data):
         stack = []
         corrupted = False
         for char in line:
-            if corrupted:
-                continue
-
             if char in chunk_delims.keys():
                 stack.append(char)
                 continue
@@ -68,6 +65,7 @@ def part_b(data):
                     continue
                 else:
                     corrupted = True
+                    break
         if not corrupted:
             score = 0
             while stack:
