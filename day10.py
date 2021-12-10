@@ -66,8 +66,7 @@ def part_b(data):
 
             scores.append(score)
 
-    scores.sort()
-    return scores[len(scores)//2]
+    return sorted(scores)[len(scores)//2]
 
 
 def main():
