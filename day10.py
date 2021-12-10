@@ -5,7 +5,6 @@ chunk_delims = {
     '[': ']',
     '{': '}',
     '<': '>'
-
 }
 
 
@@ -68,6 +67,66 @@ def part_b(data):
     return sorted(scores)[len(scores) // 2]
 
 
+def part_a_stackless(data):
+    lines = data.splitlines()
+
+    points = {
+        ')': 3,
+        ']': 57,
+        '}': 1197,
+        '>': 25137
+    }
+
+    pairs = ['()', '[]', '{}', '<>']
+    score = 0
+
+    for line in lines:
+
+        while sum([line.count(pair) for pair in pairs]):
+            for pair in pairs:
+                line = line.replace(pair, '')
+
+        corruption = {
+            token: line.index(token)
+            for token in chunk_delims.values()
+            if token in line
+        }
+
+        if corruption:
+            first_corruption = min(corruption, key=corruption.get)
+            score += points[first_corruption]
+
+    return score
+
+
+def part_b_stackless(data):
+    lines = data.splitlines()
+
+    points = {
+        ')': 1,
+        ']': 2,
+        '}': 3,
+        '>': 4
+    }
+
+    pairs = ['()', '[]', '{}', '<>']
+    scores = []
+    for line in lines:
+
+        while sum([line.count(pair) for pair in pairs]):
+            for pair in pairs:
+                line = line.replace(pair, '')
+
+        corrupted = any([token in line for token in chunk_delims.values()])
+        if not corrupted:
+            score = 0
+            for char in reversed(line):
+                score *= 5
+                score += points[chunk_delims[char]]
+            scores.append(score)
+    return sorted(scores)[len(scores) // 2]
+
+
 def main():
     data = get_data()
 
@@ -94,6 +153,18 @@ def main():
     assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
 
     answer_b = part_b(data)
+    submit(answer=answer_b, part="b")
+
+    example_answer_a = part_a_stackless(example_data)
+    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
+
+    answer_a = part_a_stackless(data)
+    submit(answer=answer_a, part="a")
+
+    example_answer_b = part_b_stackless(example_data)
+    assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
+
+    answer_b = part_b_stackless(data)
     submit(answer=answer_b, part="b")
 
 
