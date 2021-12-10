@@ -2,22 +2,112 @@ from aocd import get_data, submit
 import parse
 
 
+chunk_delims = {
+    '(': ')',
+    '[': ']',
+    '{': '}',
+    '<': '>'
+
+}
+
 def part_a(data):
-    input = [int(x) for x in data.split(',')]
-    return 0
+    lines = data.split('\n')
+
+    points = {
+        ')': 3,
+        ']': 57,
+        '}': 1197,
+        '>': 25137
+    }
+
+    score = 0
+    for line in lines:
+        stack = []
+        corrupted = False
+        for char in line:
+            if corrupted:
+                continue
+
+            if char in chunk_delims.keys():
+                stack.append(char)
+                continue
+            if char in chunk_delims.values():
+                if char == chunk_delims[stack[-1]]:
+                    stack.pop()
+                    continue
+                else:
+                    corrupted = True
+                    score += points[char]
+
+    return score
 
 
 def part_b(data):
-    input = [int(x) for x in data.split(',')]
-    return 0
+    lines = data.split('\n')
+    scores = []
+    points = {
+        ')': 1,
+        ']': 2,
+        '}': 3,
+        '>': 4
+    }
+
+    ok_lines = []
+    for line in lines:
+        stack = []
+        corrupted = False
+        for char in line:
+            if corrupted:
+                continue
+
+            if char in chunk_delims.keys():
+                stack.append(char)
+                continue
+            if char in chunk_delims.values():
+                if char == chunk_delims[stack[-1]]:
+                    stack.pop()
+                    continue
+                else:
+                    corrupted = True
+        if not corrupted:
+            ok_lines.append(line)
+
+    for line in ok_lines:
+        stack = []
+        for char in line:
+            if char in chunk_delims.keys():
+                stack.append(char)
+                continue
+            if char in chunk_delims.values():
+                stack.pop()
+                continue
+        score = 0
+        while stack:
+            score *= 5
+            char = stack.pop()
+            score += points[chunk_delims[char]]
+
+        scores.append(score)
+
+    scores.sort()
+    return scores[int(len(scores)/2)]
 
 
 def main():
     data = get_data()
 
-    example_data = """"""
-    example_solution_a = 1
-    example_solution_b = 1
+    example_data = """[({(<(())[]>[[{[]{<()<>>
+[(()[<>])]({[<{<<[]>>(
+{([(<{}[<>[]}>{[]{[(<()>
+(((({<>}<{<{<>}{[]{[]{}
+[[<[([]))<([[{}[[()]]]
+[{[{({}]{}}([{[{{{}}([]
+{<[[]]>}<{[{[{[]{()[[[]
+[<(<(<(<{}))><([]([]()
+<{([([[(<>()){}]>(<<{{
+<{([{{}}[<[[[<>{}]]]>[]]"""
+    example_solution_a = 26397
+    example_solution_b = 288957
 
     example_answer_a = part_a(example_data)
     assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
