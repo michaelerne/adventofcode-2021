@@ -4,6 +4,7 @@ from aocd import get_data, submit
 
 D_XY = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, +1), (1, -1), (1, 0), (1, 1)]  # (0, 0) omitted
 
+
 def parse_data(data):
     return {
         (x, y): int(val) for
@@ -11,8 +12,8 @@ def parse_data(data):
         for y, val in enumerate(line)
     }
 
-def process_step(grid):
 
+def process_step(grid):
     to_flash = deque()
     flashed = set()
 
@@ -42,7 +43,6 @@ def process_step(grid):
 def part_a(data):
     grid = parse_data(data)
 
-
     answer = 0
     for _ in range(100):
         grid, flashed = process_step(grid)
@@ -52,7 +52,6 @@ def part_a(data):
 
 
 def part_b(data):
-
     grid = parse_data(data)
 
     total = len(grid)
