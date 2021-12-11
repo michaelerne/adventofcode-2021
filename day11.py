@@ -2,91 +2,66 @@ from collections import deque
 
 from aocd import get_data, submit
 
+D_XY = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, +1), (1, -1), (1, 0), (1, 1)]  # (0, 0) omitted
 
-def part_a(data):
-    grid = {
+def parse_data(data):
+    return {
         (x, y): int(val) for
         x, line in enumerate(data.split('\n'))
         for y, val in enumerate(line)
     }
 
-    D_XY = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, +1), (1, -1), (1, 0), (1, 1)]  # (0, 0) omitted
+def process_step(grid):
 
-    answer = 0
-    step = 0
+    to_flash = deque()
+    flashed = set()
 
-    while True:
-        step += 1
-        to_flash = deque()
-        flashed = set()
+    for point, value in grid.items():
+        value += 1
+        grid[point] = value
+        if value > 9:
+            to_flash.append(point)
+            flashed.add(point)
 
-        for point, value in grid.items():
-            value += 1
+    while to_flash:
+        x, y = to_flash.pop()
+        neighbors = [(x + dx, y + dy) for dx, dy in D_XY if (x + dx, y + dy) in grid]
+        for point in neighbors:
+            value = grid[point] + 1
             grid[point] = value
-            if value > 9:
+            if value > 9 and point not in flashed:
                 to_flash.append(point)
                 flashed.add(point)
 
-        while to_flash:
-            x, y = to_flash.pop()
-            neighbors = [(x + dx, y + dy) for dx, dy in D_XY if (x + dx, y + dy) in grid]
-            for point in neighbors:
-                value = grid[point] + 1
-                grid[point] = value
-                if value > 9 and point not in flashed:
-                    to_flash.append(point)
-                    flashed.add(point)
+    for x, y in flashed:
+        grid[x, y] = 0
 
-        for x, y in flashed:
-            grid[x, y] = 0
+    return grid, flashed
 
+
+def part_a(data):
+    grid = parse_data(data)
+
+
+    answer = 0
+    for _ in range(100):
+        grid, flashed = process_step(grid)
         answer += len(flashed)
-        if step == 100:
-            break
 
     return answer
 
 
 def part_b(data):
 
-    grid = {
-        (x, y): int(val) for
-        x, line in enumerate(data.split('\n'))
-        for y, val in enumerate(line)
-    }
-
-    D_XY = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, +1), (1, -1), (1, 0), (1, 1)]  # (0, 0) omitted
+    grid = parse_data(data)
 
     total = len(grid)
     step = 0
-
     while True:
         step += 1
-        to_flash = deque()
-        flashed = set()
-
-        for point, value in grid.items():
-            value += 1
-            grid[point] = value
-            if value > 9:
-                to_flash.append(point)
-                flashed.add(point)
-
-        while to_flash:
-            x, y = to_flash.pop()
-            neighbors = [(x + dx, y + dy) for dx, dy in D_XY if (x + dx, y + dy) in grid]
-            for point in neighbors:
-                value = grid[point] + 1
-                grid[point] = value
-                if value > 9 and point not in flashed:
-                    to_flash.append(point)
-                    flashed.add(point)
-
+        grid, flashed = process_step(grid)
         if len(flashed) == total:
             return step
-
-        for x, y in flashed:
-            grid[x, y] = 0
 
 
 def main():
