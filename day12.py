@@ -43,21 +43,17 @@ def part_a(data):
     paths = []
     queue = deque([start])
     while queue:
-        previous_path, previous_small_caves_visited = queue.popleft()
-        cave = previous_path[-1]
+        path, small_caves_visited = queue.popleft()
+        cave = path[-1]
         if cave == 'end':
-            paths.append(previous_path)
+            paths.append(path)
             continue
-        for neighbor_cave in graph[cave]:
-            path = previous_path.copy()
-            small_caves_visited = previous_small_caves_visited.copy()
-
-            path.append(neighbor_cave)
-
-            if neighbor_cave not in previous_small_caves_visited:
-                if neighbor_cave.islower():
-                    small_caves_visited.add(neighbor_cave)
-                queue.append((path, small_caves_visited))
+        for neighbor in graph[cave]:
+            if neighbor not in small_caves_visited:
+                queue.append((
+                    path + [neighbor],
+                    small_caves_visited | ({neighbor} if neighbor.islower() else set())
+                ))
     return len(paths)
 
 
@@ -70,27 +66,28 @@ def part_a_rec(data):
 def part_b(data):
     graph = get_graph(data)
 
-    start = (['start'], {'start'}, False)
+    start = (['start'], {'start'}, True)
     paths = []
     queue = deque([start])
     while queue:
-        previous_path, previous_small_caves_visited, small_cave_visited_twice = queue.popleft()
-        cave = previous_path[-1]
+        path, small_caves_visited, allow_one_multi_visit = queue.popleft()
+        cave = path[-1]
         if cave == 'end':
-            paths.append(previous_path)
+            paths.append(path)
             continue
-        for neighbor_cave in graph[cave]:
-            path = previous_path.copy()
-            small_caves_visited = previous_small_caves_visited.copy()
-
-            path.append(neighbor_cave)
-
-            if neighbor_cave not in previous_small_caves_visited:
-                if neighbor_cave.islower():
-                    small_caves_visited.add(neighbor_cave)
-                queue.append((path, small_caves_visited, small_cave_visited_twice))
-            elif not small_cave_visited_twice and neighbor_cave not in ['start', 'end']:
-                queue.append((path, small_caves_visited, True))
+        for neighbor in graph[cave]:
+            if neighbor not in small_caves_visited:
+                queue.append((
+                    path + [neighbor],
+                    small_caves_visited | ({neighbor} if neighbor.islower() else set()),
+                    allow_one_multi_visit
+                ))
+            elif allow_one_multi_visit and neighbor != "start":
+                queue.append((
+                    path + [neighbor],
+                    small_caves_visited,
+                    False
+                ))
     return len(paths)
 
 
