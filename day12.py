@@ -11,6 +11,31 @@ def get_graph(data):
     return graph
 
 
+def bfs(graph, path, small_caves_visited, allow_one_multi_visit=False):
+    cave = path[-1]
+    if cave == "end":
+        return [path]
+
+    paths_found = []
+    for neighbor in graph[cave]:
+        if neighbor not in small_caves_visited:
+            paths_found += bfs(
+                graph,
+                path + [neighbor],
+                small_caves_visited | ({neighbor} if neighbor.islower() else set()),
+                allow_one_multi_visit
+            )
+        elif allow_one_multi_visit and neighbor != "start":
+            paths_found += bfs(
+                graph,
+                path + [neighbor],
+                small_caves_visited,
+                False
+            )
+
+    return paths_found
+
+
 def part_a(data):
     graph = get_graph(data)
 
@@ -33,6 +58,12 @@ def part_a(data):
                 if neighbor_cave.islower():
                     small_caves_visited.add(neighbor_cave)
                 queue.append((path, small_caves_visited))
+    return len(paths)
+
+
+def part_a_rec(data):
+    graph = get_graph(data)
+    paths = bfs(graph, ['start'], {'start'}, False)
     return len(paths)
 
 
@@ -60,6 +91,12 @@ def part_b(data):
                 queue.append((path, small_caves_visited, small_cave_visited_twice))
             elif not small_cave_visited_twice and neighbor_cave not in ['start', 'end']:
                 queue.append((path, small_caves_visited, True))
+    return len(paths)
+
+
+def part_b_rec(data):
+    graph = get_graph(data)
+    paths = bfs(graph, ['start'], {'start'}, True)
     return len(paths)
 
 
@@ -105,17 +142,17 @@ start-RW""", 226, 3509)
     ]
 
     for example_data, example_solution_a, example_solution_b in examples:
-        example_answer_a = part_a(example_data)
+        example_answer_a = part_a_rec(example_data)
         assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
 
-    answer_a = part_a(data)
+    answer_a = part_a_rec(data)
     submit(answer=answer_a, part="a")
 
     for example_data, example_solution_a, example_solution_b in examples:
-        example_answer_b = part_b(example_data)
+        example_answer_b = part_b_rec(example_data)
         assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
 
-    answer_b = part_b(data)
+    answer_b = part_b_rec(data)
     submit(answer=answer_b, part="b")
 
 
