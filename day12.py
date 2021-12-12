@@ -139,17 +139,17 @@ start-RW""", 226, 3509)
     ]
 
     for example_data, example_solution_a, example_solution_b in examples:
-        example_answer_a = part_a_rec(example_data)
+        example_answer_a = part_a(example_data)
         assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
 
-    answer_a = part_a_rec(data)
+    answer_a = part_a(data)
     submit(answer=answer_a, part="a")
 
     for example_data, example_solution_a, example_solution_b in examples:
-        example_answer_b = part_b_rec(example_data)
+        example_answer_b = part_b(example_data)
         assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
 
-    answer_b = part_b_rec(data)
+    answer_b = part_b(data)
     submit(answer=answer_b, part="b")
 
 
