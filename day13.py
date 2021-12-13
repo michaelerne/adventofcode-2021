@@ -33,30 +33,12 @@ def do_fold(points, fold):
 
     for x, y in points:
 
-        if (x, y) not in points:
-            continue
-
-        if axis == 'x':
-            if x == index:
-                continue
-
-            if x < index:
-                new_points.add((x, y))
-
-            if x > index:
-                diff_to_index = x - index
-                new_points.add((index - diff_to_index, y))
-
-        if axis == 'y':
-            if y == index:
-                continue
-
-            if y < index:
-                new_points.add((x, y))
-
-            if y > index:
-                diff_to_index = y - index
-                new_points.add((x, index - diff_to_index))
+        if axis == 'x' and x > index:
+            new_points.add((2 * index - x, y))
+        elif axis == 'y' and y > index:
+            new_points.add((x, 2 * index - y))
+        else:
+            new_points.add((x, y))
 
     return new_points
 
