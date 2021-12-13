@@ -44,16 +44,55 @@ def part_a(data):
     return len(points)
 
 
+def points_to_text(points):
+
+    text = ''
+
+    def hash(points):
+        return ';'.join([f'{x},{y}' for x, y in points])
+
+    max_x = max([x for x, _ in points]) + 1
+
+    lookup = {
+        '0,1;1,2;0,4;1,5;0,0;0,3;2,0;3,0;0,2;0,5;2,2;1,0;2,5;3,5': 'E',
+        '0,1;0,4;0,0;3,1;0,3;2,0;2,3;0,2;0,5;1,0;3,2;1,3': 'P',
+        '0,1;0,4;1,5;0,0;0,3;0,2;0,5;2,5;3,5': 'L',
+        '0,1;0,4;3,4;1,5;3,1;0,3;2,0;2,3;0,2;3,3;1,0;2,5;3,5': 'G',
+        '0,1;2,4;0,4;0,0;3,1;0,3;2,0;2,3;0,2;0,5;1,0;3,2;1,3;3,5': 'R',
+        '0,1;0,4;3,4;0,0;3,1;1,5;0,3;3,0;0,2;3,3;3,2;2,5': 'U',
+        '0,1;0,4;0,0;1,5;0,3;0,2;0,5;2,5;3,5': 'L',
+    }
+    for x_gap in range(max_x // 5 + 1):
+        char_points = set()
+        for x, y in points:
+            if x_gap * 5 <= x <= (x_gap * 5) + 4:
+                char_points.add((x, y))
+        points -= char_points
+        char_points = {(x - x_gap * 5, y) for x, y in char_points}
+
+        index = hash(char_points)
+        if index not in lookup:
+            print("Missing entry:\n")
+            print_points(char_points)
+            letter = input('Which Character is this? ')
+            print()
+            print("please add the following line to the lookup dict:")
+            letter_hash = hash(char_points)
+            print(f"    '{letter_hash}': '{letter}',")
+            lookup[letter_hash] = letter
+
+        text += lookup[index]
+
+    return text
+
+
 def part_b(data):
     points, folds = parse_data(data)
 
     for axis, index in folds:
         points = do_fold(points, axis, index)
 
-    print_points(points)
-    answer = input("what do you read?")
-    print()
-    return answer
+    return points_to_text(points)
 
 
 def main():
@@ -89,8 +128,8 @@ fold along x=5"""
     answer_a = part_a(data)
     submit(answer=answer_a, part="a")
 
-    example_answer_b = part_b(example_data)
-    assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
+    # example_answer_b = part_b(example_data)
+    # assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
 
     answer_b = part_b(data)
     submit(answer=answer_b, part="b")
