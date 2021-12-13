@@ -27,26 +27,19 @@ def print_points(points):
         print(''.join(['#' if (x, y) in points else ' ' for x in range(max_x)]))
 
 
-def do_fold(points, fold):
-    axis, index = fold
-    new_points = set()
-
-    for x, y in points:
-
-        if axis == 'x' and x > index:
-            new_points.add((2 * index - x, y))
-        elif axis == 'y' and y > index:
-            new_points.add((x, 2 * index - y))
-        else:
-            new_points.add((x, y))
-
-    return new_points
+def do_fold(points, axis, index):
+    if axis == 'x':
+        return {(min(x, 2 * index - x), y) for x, y in points}
+    else:
+        return {(x, min(y, 2 * index - y)) for x, y in points}
 
 
 def part_a(data):
     points, folds = parse_data(data)
 
-    points = do_fold(points, folds[0])
+    axis, index = folds[0]
+
+    points = do_fold(points, axis, index)
 
     return len(points)
 
@@ -54,8 +47,8 @@ def part_a(data):
 def part_b(data):
     points, folds = parse_data(data)
 
-    for fold in folds:
-        points = do_fold(points, fold)
+    for axis, index in folds:
+        points = do_fold(points, axis, index)
 
     print_points(points)
     answer = input("what do you read?")
