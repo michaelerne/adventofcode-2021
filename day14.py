@@ -16,10 +16,9 @@ def parse_data(data):
 
 def do_step(pairs, mappings):
     new_pairs = Counter()
-    for source, destinations in mappings.items():
-        if source in pairs:
-            for destination in destinations:
-                new_pairs[destination] += pairs[source]
+    for source in pairs.keys():
+        for destination in mappings[source]:
+            new_pairs[destination] += pairs[source]
     return new_pairs
 
 
