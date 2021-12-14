@@ -4,7 +4,7 @@ import parse
 from aocd import get_data, submit
 
 
-def parse_data2(data):
+def parse_data(data):
     template, mapping_strings = data.split('\n\n')
     pairs = Counter(zip(template, template[1:]))
     mappings = {
@@ -24,7 +24,7 @@ def do_step(pairs, mappings):
 
 
 def part_a(data):
-    pairs, mappings, template = parse_data2(data)
+    pairs, mappings, template = parse_data(data)
 
     for step in range(10):
         pairs = do_step(pairs, mappings)
@@ -47,7 +47,7 @@ def get_answer(pairs, template):
 
 
 def part_b(data):
-    pairs, mappings, template = parse_data2(data)
+    pairs, mappings, template = parse_data(data)
 
     for step in range(40):
         pairs = do_step(pairs, mappings)
