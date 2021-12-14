@@ -23,15 +23,6 @@ def do_step(pairs, mappings):
     return new_pairs
 
 
-def part_a(data):
-    pairs, mappings, template = parse_data(data)
-
-    for step in range(10):
-        pairs = do_step(pairs, mappings)
-
-    return get_answer(pairs, template)
-
-
 def get_answer(pairs, template):
     counter = Counter()
     for pair, count in pairs.items():
@@ -44,6 +35,15 @@ def get_answer(pairs, template):
     most = frequency[0][1]
     least = frequency[-1][1]
     return (most - least) // 2
+
+
+def part_a(data):
+    pairs, mappings, template = parse_data(data)
+
+    for step in range(10):
+        pairs = do_step(pairs, mappings)
+
+    return get_answer(pairs, template)
 
 
 def part_b(data):
