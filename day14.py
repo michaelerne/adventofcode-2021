@@ -1,57 +1,58 @@
 from collections import Counter
 
+import parse
 from aocd import get_data, submit
 
 
 def parse_data2(data):
-    lines = data.split('\n')
-    template = Counter(zip(lines[0], lines[0][1:]))
-    mappings = dict()
-    for line in lines[2:]:
-        tokens = line.split(' -> ')
-        mappings[(tokens[0][0], tokens[0][1])] = [(tokens[0][0], tokens[1]), (tokens[1], tokens[0][1])]
+    template, mapping_strings = data.split('\n\n')
+    pairs = Counter(zip(template, template[1:]))
+    mappings = {
+        (a, b): [(a, c), (c, b)]
+        for a, b, c in parse.findall('{:l}{:l} -> {:l}', mapping_strings)
+    }
+    return pairs, mappings, template
 
-    return template, mappings, lines[0]
 
-
-def do_step(template, mappings):
-    new_template = Counter()
+def do_step(pairs, mappings):
+    new_pairs = Counter()
     for source, destinations in mappings.items():
-        if source in template:
+        if source in pairs:
             for destination in destinations:
-                new_template[destination] += template[source]
-    return new_template
+                new_pairs[destination] += pairs[source]
+    return new_pairs
 
 
 def part_a(data):
-    template, mappings, initial_template_string = parse_data2(data)
+    pairs, mappings, template = parse_data2(data)
 
     for step in range(10):
-        template = do_step(template, mappings)
+        pairs = do_step(pairs, mappings)
 
-    return get_answer(template, initial_template_string)
+    return get_answer(pairs, template)
 
 
-def get_answer(template, initial_template_string):
+def get_answer(pairs, template):
     counter = Counter()
-    for x, count in template.items():
-        counter[x[0]] += count
-        counter[x[1]] += count
-    counter[initial_template_string[0]] += 1
-    counter[initial_template_string[-1]] += 1
+    for pair, count in pairs.items():
+        counter[pair[0]] += count
+        counter[pair[1]] += count
+    counter[template[0]] += 1
+    counter[template[-1]] += 1
 
-    most = counter.most_common()[0][1]
-    least = counter.most_common()[-1][1]
+    frequency = counter.most_common()
+    most = frequency[0][1]
+    least = frequency[-1][1]
     return (most - least) // 2
 
 
 def part_b(data):
-    template, mappings, initial_template_string = parse_data2(data)
+    pairs, mappings, template = parse_data2(data)
 
     for step in range(40):
-        template = do_step(template, mappings)
+        pairs = do_step(pairs, mappings)
 
-    return get_answer(template, initial_template_string)
+    return get_answer(pairs, template)
 
 
 def main():
