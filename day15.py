@@ -1,4 +1,3 @@
-import time
 from heapq import heappop, heappush
 
 from aocd import get_data, submit
@@ -7,12 +6,11 @@ D_XY = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
 
 def parse_data(data):
-    lines = data.split('\n')
     return {
-               (int(x), int(y)): int(risk)
-               for y, line in enumerate(lines)
-               for x, risk in enumerate(line)
-           }, len(lines[0]), len(lines)
+        (int(x), int(y)): int(risk)
+        for y, line in enumerate(data.split('\n'))
+        for x, risk in enumerate(line)
+    }
 
 
 def get_neighbors(grid, x, y):
@@ -37,32 +35,35 @@ def get_shortest_path(grid, start, end):
             heappush(queue, (neighbor_cost, neighbor))
 
 
-def expand_grid(grid, max_x, max_y, factor):
-    expanded_max_x = max_x * factor
-    expanded_max_y = max_y * factor
+def expand_grid(grid, factor):
+    dimension_x, dimension_y = [x + 1 for x in max(grid, key=lambda x: x[0] * x[1])]
 
     return {
-               # point: (seed value + distance - 1) % 9 + 1
-               (x, y): (grid[(x % max_x, y % max_y)] + x // max_x + y // max_y - 1) % 9 + 1
-               for x in range(expanded_max_x)
-               for y in range(expanded_max_y)
-           }, expanded_max_x, expanded_max_y
+        # point: (seed value + distance - 1) % 9 + 1
+        (x, y): (grid[(x % dimension_x, y % dimension_y)] + x // dimension_x + y // dimension_y - 1) % 9 + 1
+        for x in range(dimension_x * factor)
+        for y in range(dimension_y * factor)
+    }
 
 
 def part_a(data):
-    grid, max_x, max_y = parse_data(data)
+    grid = parse_data(data)
 
-    answer = get_shortest_path(grid, (0, 0), (max_x - 1, max_y - 1))
+    max_x, max_y = max(grid, key=lambda x: x[0] * x[1])
+
+    answer = get_shortest_path(grid, (0, 0), (max_x, max_y))
 
     return answer
 
 
 def part_b(data):
-    grid, max_x, max_y = parse_data(data)
+    grid = parse_data(data)
 
-    grid, max_x, max_y = expand_grid(grid, max_x, max_y, factor=5)
+    grid = expand_grid(grid, factor=5)
 
-    answer = get_shortest_path(grid, (0, 0), (max_x - 1, max_y - 1))
+    max_x, max_y = max(grid, key=lambda x: x[0] * x[1])
+
+    answer = get_shortest_path(grid, (0, 0), (max_x, max_y))
 
     return answer
 
