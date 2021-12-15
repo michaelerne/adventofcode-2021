@@ -1,5 +1,5 @@
-import heapq
-
+import time
+from heapq import heappop, heappush
 
 from aocd import get_data, submit
 
@@ -9,10 +9,10 @@ D_XY = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 def parse_data(data):
     lines = data.split('\n')
     return {
-        (int(x), int(y)): int(risk)
-        for y, line in enumerate(lines)
-        for x, risk in enumerate(line)
-    }, len(lines[0]), len(lines)
+               (int(x), int(y)): int(risk)
+               for y, line in enumerate(lines)
+               for x, risk in enumerate(line)
+           }, len(lines[0]), len(lines)
 
 
 def get_neighbors(grid, x, y):
@@ -25,7 +25,7 @@ def get_shortest_path(grid, start, end):
     costs = {}
 
     while queue:
-        cost, point = heapq.heappop(queue)
+        cost, point = heappop(queue)
         if point == end:
             return cost
 
@@ -34,30 +34,19 @@ def get_shortest_path(grid, start, end):
             if neighbor in costs and costs[neighbor] <= neighbor_cost:
                 continue
             costs[neighbor] = neighbor_cost
-            heapq.heappush(queue, (neighbor_cost, neighbor))
+            heappush(queue, (neighbor_cost, neighbor))
 
 
 def expand_grid(grid, max_x, max_y, factor):
-    expanded = {
-        (x, y): 0
-        for x in range(factor * max_x)
-        for y in range(factor * max_y)
-    }
-
     expanded_max_x = max_x * factor
     expanded_max_y = max_y * factor
 
-    for x in range(expanded_max_x):
-        for y in range(expanded_max_y):
-            dist = x // max_x + y // max_y
-            value = grid[(x % max_x, y % max_y)]
-
-            for i in range(dist):
-                value += 1
-                if value == 10:
-                    value = 1
-            expanded[(x, y)] = value
-    return expanded, expanded_max_x, expanded_max_y
+    return {
+               # point: (seed value + distance - 1) % 9 + 1
+               (x, y): (grid[(x % max_x, y % max_y)] + x // max_x + y // max_y - 1) % 9 + 1
+               for x in range(expanded_max_x)
+               for y in range(expanded_max_y)
+           }, expanded_max_x, expanded_max_y
 
 
 def part_a(data):
@@ -72,6 +61,7 @@ def part_b(data):
     grid, max_x, max_y = parse_data(data)
 
     grid, max_x, max_y = expand_grid(grid, max_x, max_y, factor=5)
+
     answer = get_shortest_path(grid, (0, 0), (max_x - 1, max_y - 1))
 
     return answer
