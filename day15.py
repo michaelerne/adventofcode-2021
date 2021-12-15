@@ -1,53 +1,63 @@
 import heapq
 
+
 from aocd import get_data, submit
 
 D_XY = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
 
 def parse_data(data):
-    lines = data.split("\n")
-    return [[int(pos) for pos in line] for line in lines], len(lines[0]), len(lines)
+    lines = data.split('\n')
+    return {
+        (int(x), int(y)): int(risk)
+        for y, line in enumerate(lines)
+        for x, risk in enumerate(line)
+    }, len(lines[0]), len(lines)
 
 
-def get_neighbors(grid, point):
-    x, y = point
-    possible_neighbors = [(x + dx, y + dy) for dx, dy in D_XY]
-    neighbors = [(x, y) for x, y in possible_neighbors if x in range(len(grid[0])) and y in range(len(grid))]
-    return neighbors
+def get_neighbors(grid, x, y):
+    return [(x + dx, y + dy) for dx, dy in D_XY if (x + dx, y + dy) in grid]
 
 
 def get_shortest_path(grid, start, end):
-    q = [(0, *start)]
+    queue = [(0, start)]
 
     costs = {}
 
-    while heapq:
-        cost, x, y = heapq.heappop(q)
-        if (x, y) == end:
+    while queue:
+        cost, point = heapq.heappop(queue)
+        if point == end:
             return cost
 
-        for n_x, n_y in get_neighbors(grid, (x, y)):
-            n_c = cost + grid[n_x][n_y]
-            if (n_x, n_y) in costs and costs[(n_x, n_y)] <= n_c:
+        for neighbor in get_neighbors(grid, *point):
+            neighbor_cost = cost + grid[neighbor]
+            if neighbor in costs and costs[neighbor] <= neighbor_cost:
                 continue
-            costs[(n_x, n_y)] = n_c
-            heapq.heappush(q, (n_c, n_x, n_y))
+            costs[neighbor] = neighbor_cost
+            heapq.heappush(queue, (neighbor_cost, neighbor))
 
 
-def expand_grid(grid, factor):
-    expanded = [[0 for _x in range(factor * len(grid[0]))] for _y in range(factor * len(grid))]
+def expand_grid(grid, max_x, max_y, factor):
+    expanded = {
+        (x, y): 0
+        for x in range(factor * max_x)
+        for y in range(factor * max_y)
+    }
 
-    for x in range(len(expanded)):
-        for y in range(len(expanded[0])):
-            dist = x // len(grid) + y // len(grid[0])
-            newval = grid[x % len(grid)][y % len(grid[0])]
+    expanded_max_x = max_x * factor
+    expanded_max_y = max_y * factor
+
+    for x in range(expanded_max_x):
+        for y in range(expanded_max_y):
+            dist = x // max_x + y // max_y
+            value = grid[(x % max_x, y % max_y)]
+
             for i in range(dist):
-                newval += 1
-                if newval == 10:
-                    newval = 1
-            expanded[x][y] = newval
-    return expanded
+                value += 1
+                if value == 10:
+                    value = 1
+            expanded[(x, y)] = value
+    return expanded, expanded_max_x, expanded_max_y
 
 
 def part_a(data):
@@ -61,8 +71,8 @@ def part_a(data):
 def part_b(data):
     grid, max_x, max_y = parse_data(data)
 
-    grid = expand_grid(grid, factor=5)
-    answer = get_shortest_path(grid, (0, 0), (5 * max_x - 1, 5 * max_y - 1))
+    grid, max_x, max_y = expand_grid(grid, max_x, max_y, factor=5)
+    answer = get_shortest_path(grid, (0, 0), (max_x - 1, max_y - 1))
 
     return answer
 
