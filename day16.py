@@ -1,5 +1,4 @@
-from functools import reduce
-from operator import mul
+from math import prod
 from typing import Tuple, List, Optional
 
 from aocd import get_data, submit
@@ -62,7 +61,7 @@ def eval_packet(packet: Packet) -> int:
         case 0:
             return sum(subpacket_values)
         case 1:
-            return reduce(mul, subpacket_values, 1)
+            return prod(subpacket_values)
         case 2:
             return min(subpacket_values)
         case 3:
@@ -70,11 +69,11 @@ def eval_packet(packet: Packet) -> int:
         case 4:
             return literal_value
         case 5:
-            return 1 if subpacket_values[0] > subpacket_values[1] else 0
+            return subpacket_values[0] > subpacket_values[1]
         case 6:
-            return 1 if subpacket_values[0] < subpacket_values[1] else 0
+            return subpacket_values[0] < subpacket_values[1]
         case 7:
-            return 1 if subpacket_values[0] == subpacket_values[1] else 0
+            return subpacket_values[0] == subpacket_values[1]
 
 
 def part_a(data: str):
