@@ -30,14 +30,14 @@ def parse(bits) -> Tuple[Packet, Bits]:
             chunk, bits = take_bits(bits, 5)
             more, payload_part = take_bits(chunk, 1)
             literal_payload += payload_part
-            if more == '1':
+            if more == '0':
                 break
         literal_value = int(literal_payload, base=2)
         packet = (v, t, literal_value, [])
         return packet, bits
 
     i, bits = take_bits(bits, 1)
-    if i == '1':
+    if i == '0':
         l, bits = take_bits_as_int(bits, 15)
         subpackets = []
         sub_bits, bits = take_bits(bits, l)
