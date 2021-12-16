@@ -1,23 +1,26 @@
 from functools import reduce
 from operator import mul
-from typing import Tuple
+from typing import Tuple, List, Optional
 
 from aocd import get_data, submit
 
+Bits = str
+Packet = Tuple[int, int, Optional[int], List['Packet']]
 
-def hex_to_bits(hex_str: str) -> str:
+
+def hex_to_bits(hex_str: str) -> Bits:
     return ''.join([bin(n)[2:].zfill(4) for n in [int(n, base=16) for n in hex_str]])
 
 
-def take_bits(bits: str, num_bits: int) -> Tuple[str, str]:
+def take_bits(bits: Bits, num_bits: int) -> Tuple[str, Bits]:
     return bits[0:num_bits], bits[num_bits:]
 
 
-def take_bits_as_int(bits: str, num_bits: int) -> Tuple[int, str]:
+def take_bits_as_int(bits: Bits, num_bits: int) -> Tuple[int, Bits]:
     return int(bits[0:num_bits], base=2), bits[num_bits:]
 
 
-def parse(bits):
+def parse(bits) -> Tuple[Packet, Bits]:
     v, bits = take_bits_as_int(bits, 3)
     t, bits = take_bits_as_int(bits, 3)
 
@@ -52,7 +55,7 @@ def parse(bits):
     return packet, bits
 
 
-def eval_packet(packet):
+def eval_packet(packet: Packet) -> int:
     v, t, literal_value, subpackets = packet
     subpacket_values = [eval_packet(packet) for packet in subpackets]
     match t:
@@ -74,7 +77,7 @@ def eval_packet(packet):
             return 1 if subpacket_values[0] == subpacket_values[1] else 0
 
 
-def part_a(data):
+def part_a(data: str):
     bits = hex_to_bits(data)
     packet, *_ = parse(bits)
 
