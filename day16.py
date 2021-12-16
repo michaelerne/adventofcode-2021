@@ -1,6 +1,6 @@
 from functools import reduce
 from operator import mul
-from typing import Tuple, Union
+from typing import Tuple
 
 from aocd import get_data, submit
 
@@ -9,36 +9,40 @@ def hex_to_bits(hex_str: str) -> str:
     return ''.join([bin(n)[2:].zfill(4) for n in [int(n, base=16) for n in hex_str]])
 
 
-def take_bits(bits: str, num_bits: int, as_int: bool = False) -> Tuple[Union[str, int], str]:
-    return int(bits[0:num_bits], base=2) if as_int else bits[0:num_bits], bits[num_bits:]
+def take_bits(bits: str, num_bits: int) -> Tuple[str, str]:
+    return bits[0:num_bits], bits[num_bits:]
+
+
+def take_bits_as_int(bits: str, num_bits: int) -> Tuple[int, str]:
+    return int(bits[0:num_bits], base=2), bits[num_bits:]
 
 
 def parse(bits):
-    v, bits = take_bits(bits, 3, as_int=True)
-    t, bits = take_bits(bits, 3, as_int=True)
+    v, bits = take_bits_as_int(bits, 3)
+    t, bits = take_bits_as_int(bits, 3)
 
     if t == 4:
         literal_payload = ''
         while True:
             chunk, bits = take_bits(bits, 5)
-            more, payload_part = take_bits(chunk, 1, as_int=True)
+            more, payload_part = take_bits(chunk, 1)
             literal_payload += payload_part
-            if more == 0:
+            if more == '1':
                 break
         literal_value = int(literal_payload, base=2)
         packet = (v, t, literal_value, [])
         return packet, bits
 
-    i, bits = take_bits(bits, 1, as_int=True)
-    if i == 0:
-        l, bits = take_bits(bits, 15, as_int=True)
+    i, bits = take_bits(bits, 1)
+    if i == '1':
+        l, bits = take_bits_as_int(bits, 15)
         subpackets = []
         sub_bits, bits = take_bits(bits, l)
         while sub_bits:
             s, sub_bits = parse(sub_bits)
             subpackets.append(s)
     else:
-        l, bits = take_bits(bits, 11, as_int=True)
+        l, bits = take_bits_as_int(bits, 11)
         subpackets = []
         for _ in range(l):
             s, bits = parse(bits)
