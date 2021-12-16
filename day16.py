@@ -21,16 +21,16 @@ def parse(bits):
         literal_payload = ''
         while True:
             chunk, bits = take_bits(bits, 5)
-            more, payload_part = take_bits(chunk, 1)
+            more, payload_part = take_bits(chunk, 1, as_int=True)
             literal_payload += payload_part
-            if more == '0':
+            if more == 0:
                 break
         literal_value = int(literal_payload, base=2)
         packet = (v, t, literal_value, [])
         return packet, bits
 
-    i, bits = take_bits(bits, 1)
-    if i == '0':
+    i, bits = take_bits(bits, 1, as_int=True)
+    if i == 0:
         l, bits = take_bits(bits, 15, as_int=True)
         subpackets = []
         sub_bits, bits = take_bits(bits, l)
