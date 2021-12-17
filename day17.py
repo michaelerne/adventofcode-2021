@@ -1,60 +1,61 @@
-from typing import Set, Tuple
+import math
 
+import parse
 from aocd import get_data, submit
 
 
 def parse_data(data):
-    # min_x, max_x, min_y, max_y = parse.parse('x={:d}..{:d}, y={:d}..{:d}', data).fixed
-
-    data = data.split(': ')[1]
-    data = data.replace('x=', '').replace('y=', '')
-    x, y = data.split(', ')
-    x_min, x_max = x.split('..')
-    y_min, y_max = y.split('..')
-    x_min, x_max, y_min, y_max = int(x_min), int(x_max), int(y_min), int(y_max)
-
-    target = set()
-    for x in range(x_min, x_max + 1):
-        for y in range(y_min, y_max + 1):
-            target.add((x, y))
-
-    return target, x_max, y_min
+    return parse.parse('target area: x={:d}..{:d}, y={:d}..{:d}', data).fixed
 
 
-def simulate_shot(x, y, max_x, min_y) -> Set[Tuple[int, int]]:
-    pos_x, pos_y = 0, 0
-    hit = set()
-    while pos_x <= max_x and pos_y >= min_y:
-        pos_x += x
-        pos_y += y
+def get_x(x):
+    x_pos = 0
+    while True:
+        yield x_pos
+        x_pos += x
         x = max(x - 1, 0)
+
+
+def get_y(y):
+    y_pos = 0
+    while True:
+        yield y_pos
+        y_pos += y
         y -= 1
-        hit.add((pos_x, pos_y))
-    return hit
+
+
+def simulate_shot(x, y, x_min, x_max, y_min, y_max) -> bool:
+    x_gen = get_x(x)
+    y_gen = get_y(y)
+
+    point = zip(x_gen, y_gen)
+
+    x, y = next(point)
+    while x <= x_max and y >= y_min:
+        if x_min <= x <= x_max and y_min <= y <= y_max:
+            return True
+        x, y = next(point)
+
+    return False
 
 
 def part_a(data):
-    target, max_x, min_y = parse_data(data)
+    x_min, x_max, y_min, y_max = parse_data(data)
 
-    highest = 0
-    for x in range(200):
-        for y in range(min_y, 200):
-            hits = simulate_shot(x, y, max_x, min_y)
-            if any([hit in target for hit in hits]):
-                highest = max(highest, max(hits, key=lambda x: x[1])[1])
-    return highest
+    return (y_min * (y_min + 1)) // 2
 
 
 def part_b(data):
-    target, max_x, min_y = parse_data(data)
+    x_min, x_max, y_min, y_max = parse_data(data)
 
-    works_count = 0
-    for x in range(200):
-        for y in range(min_y, 200):
-            hits = simulate_shot(x, y, max_x, min_y)
-            if any([hit in target for hit in hits]):
-                works_count += 1
-    return works_count
+    x_vel_min = math.floor(0.5 * math.sqrt(4 * x_min + 1) - 1)
+    y_vel_max = abs(y_min)
+
+    return sum([
+        simulate_shot(x, y, x_min, x_max, y_min, y_max)
+        for x in range(x_vel_min, x_max + 1)
+        for y in range(y_min, y_vel_max)
+    ])
 
 
 def main():
