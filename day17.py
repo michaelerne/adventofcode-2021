@@ -48,13 +48,15 @@ def part_a(data):
 def part_b(data):
     x_min, x_max, y_min, y_max = parse_data(data)
 
-    x_vel_min = math.floor(0.5 * math.sqrt(4 * x_min + 1) - 1)
-    y_vel_max = abs(y_min)
+    x_vel_min = math.floor(0.5 * math.sqrt(8 * x_min + 1) - 1)
+    x_vel_max = x_max
+    y_vel_min = y_min
+    y_vel_max = -y_min
 
     return sum([
         simulate_shot(x, y, x_min, x_max, y_min, y_max)
-        for x in range(x_vel_min, x_max + 1)
-        for y in range(y_min, y_vel_max)
+        for x in range(x_vel_min, x_vel_max + 1)
+        for y in range(y_vel_min, y_vel_max + 1)
     ])
 
 
