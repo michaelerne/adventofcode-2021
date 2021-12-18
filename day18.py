@@ -10,6 +10,20 @@ def parse_data(data):
 
 
 def add_left(value, to_add):
+    """
+    >>> add_left(1, None)
+    1
+    >>> add_left(1, 1)
+    2
+    >>> add_left([1, 1], None)
+    [1, 1]
+    >>> add_left([1, 1], 1)
+    [2, 1]
+    >>> add_left([[1, 1], 1], None)
+    [[1, 1], 1]
+    >>> add_left([[1, 1], 1], 1)
+    [[2, 1], 1]
+    """
     if to_add is None:
         return value
     if isinstance(value, int):
@@ -18,6 +32,20 @@ def add_left(value, to_add):
 
 
 def add_right(value, to_add):
+    """
+    >>> add_right(1, None)
+    1
+    >>> add_right(1, 1)
+    2
+    >>> add_right([1, 1], None)
+    [1, 1]
+    >>> add_right([1, 1], 1)
+    [1, 2]
+    >>> add_right([1, [1, 1]], None)
+    [1, [1, 1]]
+    >>> add_right([1, [1, 1]], 1)
+    [1, [1, 2]]
+    """
     if to_add is None:
         return value
     if isinstance(value, int):
@@ -26,6 +54,16 @@ def add_right(value, to_add):
 
 
 def explode(value, depth_left=4):
+    """
+    >>> explode([[[[0, 7], 4], [7, [[8, 4], 9]]], [1, 1]])
+    (True, None, [[[[0, 7], 4], [15, [0, 13]]], [1, 1]], None)
+    >>> explode([[[[0, 7], 4], [7, [[8, 4], 9]]], [1, 1]])
+    (True, None, [[[[0, 7], 4], [15, [0, 13]]], [1, 1]], None)
+    >>> explode([[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]])
+    (True, None, [[[[0, 7], 4], [[7, 8], [6, 0]]], [8, 1]], None)
+    >>> explode([[[[0, 7], 4], [[7, 8], [0, 13]]], [1, 1]])
+    (False, None, [[[[0, 7], 4], [[7, 8], [0, 13]]], [1, 1]], None)
+    """
     if isinstance(value, int):
         return False, None, value, None
     if depth_left == 0:
@@ -47,6 +85,14 @@ def explode(value, depth_left=4):
 
 
 def split(value):
+    """
+    >>> split([[[[0,7],4],[15,[0,13]]],[1,1]])
+    (True, [[[[0, 7], 4], [[7, 8], [0, 13]]], [1, 1]])
+    >>> split([[[[0,7],4],[[7,8],[0,13]]],[1,1]])
+    (True, [[[[0, 7], 4], [[7, 8], [0, [6, 7]]]], [1, 1]])
+    >>> split([0, 0])
+    (False, [0, 0])
+    """
     if isinstance(value, int):
         if value >= 10:
             return True, [math.floor(value / 2), math.ceil(value / 2)]
@@ -66,6 +112,10 @@ def split(value):
 
 
 def add(left, right):
+    """
+    >>> add([[[[4,3],4],4],[7,[[8,4],9]]], [1,1])
+    [[[[0, 7], 4], [[7, 8], [6, 0]]], [8, 1]]
+    """
     value = [left, right]
     while True:
         change, _, value, _ = explode(value)
@@ -78,6 +128,20 @@ def add(left, right):
 
 
 def magnitude(value):
+    """
+    >>> magnitude([[1,2],[[3,4],5]])
+    143
+    >>> magnitude([[[[0,7],4],[[7,8],[6,0]]],[8,1]])
+    1384
+    >>> magnitude([[[[1,1],[2,2]],[3,3]],[4,4]])
+    445
+    >>> magnitude([[[[3,0],[5,3]],[4,4]],[5,5]])
+    791
+    >>> magnitude([[[[5,0],[7,4]],[5,5]],[6,6]])
+    1137
+    >>> magnitude([[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]])
+    3488
+    """
     if isinstance(value, int):
         return value
     return 3 * magnitude(value[0]) + 2 * magnitude(value[1])
