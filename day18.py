@@ -1,6 +1,5 @@
 import itertools
 import math
-import time
 from functools import reduce
 
 from aocd import get_data, submit
@@ -35,24 +34,19 @@ def explode(value, depth_left=4):
     left, right = value
 
     # explode left
-    exploded, left_add, new_left, right_add = explode(left, depth_left - 1)
+    exploded, left_add, left, right_add = explode(left, depth_left - 1)
     if exploded:
-        new_right = add_left(right, right_add)
-        new_value = [new_left, new_right]
-        return True, left_add, new_value, None
+        return True, left_add, [left, add_left(right, right_add)], None
 
     # explode right
-    exploded, left_add, new_right, right_add = explode(right, depth_left - 1)
+    exploded, left_add, right, right_add = explode(right, depth_left - 1)
     if exploded:
-        new_left = add_right(left, left_add)
-        new_value = [new_left, new_right]
-        return True, None, new_value, right_add
+        return True, None, [add_right(left, left_add), right], right_add
 
     return False, None, value, None
 
 
 def split(value):
-
     if isinstance(value, int):
         if value >= 10:
             return True, [math.floor(value / 2), math.ceil(value / 2)]
