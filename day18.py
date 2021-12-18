@@ -1,7 +1,7 @@
 import itertools
 import math
 from functools import reduce
-
+from multiprocessing import Pool
 from aocd import get_data, submit
 
 
@@ -151,10 +151,16 @@ def part_a(data):
     lines = parse_data(data)
     return magnitude(reduce(add, lines))
 
+def magnitude_add(a, b):
+    return magnitude(add(a, b))
 
 def part_b(data):
     lines = parse_data(data)
-    return max(magnitude(add(a, b)) for a, b in itertools.permutations(lines, 2))
+
+    with Pool(8) as pool:
+        magnitudes = pool.starmap(magnitude_add, itertools.permutations(lines, 2))
+
+    return max(magnitudes)
 
 
 def main():
