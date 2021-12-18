@@ -1,13 +1,13 @@
 import importlib
 import time
-from tqdm import tqdm
 
 from aocd import get_data, submit
+from tqdm import tqdm
 
 days_solved = 18
 
-def main():
 
+def main():
     timings = {}
     for day in tqdm(range(1, days_solved + 1), desc="Solving AoC2021", unit="day"):
         d = importlib.import_module(f'day{str(day).zfill(2)}')
@@ -29,8 +29,12 @@ def main():
 
     print()
     print("timings:")
+    total = 0
     for title, duration_ns in timings.items():
-        print(f'{title}: {duration_ns/1E6} ms')
+        print(f'{title}: {duration_ns / 1E6} ms')
+        total += duration_ns
+    print(f'total: {total / 1E6} ms')
+
 
 if __name__ == '__main__':
     main()
