@@ -1,7 +1,8 @@
-import itertools
+import itertools as it
+import time
 
 import parse
-from aocd import get_data, submit
+from aocd import get_data
 
 
 def get_scanners(data):
@@ -10,12 +11,16 @@ def get_scanners(data):
     return [[(x, y, z) for x, y, z in parse.findall('{:d},{:d},{:d}', scanner)] for scanner in scanners]
 
 
+POS_POSITIVE = [(0, 1, 2), (1, 2, 0), (2, 0, 1)]
+SIGN_POSITIVE = [(1, 1, 1), (-1, -1, 1), (-1, 1, -1)]
+POS_NEGATIVE = [(0, 2, 1), (1, 0, 2), (2, 1, 0)]
+SIGN_NEGATIVE = [(-1, 1, 1), (1, -1, 1), (1, 1, -1), (-1, -1, -1)]
+PERM_24 = list(it.chain(it.product(POS_POSITIVE, SIGN_POSITIVE), it.product(POS_NEGATIVE, SIGN_NEGATIVE)))
+
+
 def scanner_permutations(scanner):
-    for x_p, y_p, z_p in itertools.permutations([0, 1, 2], 3):
-        for z_pos in [-1, 1]:
-            for y_pos in [-1, 1]:
-                for x_pos in [-1, 1]:
-                    yield [(pos[x_p] * x_pos, pos[y_p] * y_pos, pos[z_p] * z_pos) for pos in scanner]
+    for (x_pos, y_pos, z_pos), (x_sign, y_sign, z_sign) in PERM_24:
+        yield [(pos[x_pos] * x_sign, pos[y_pos] * y_sign, pos[z_pos] * z_sign) for pos in scanner]
 
 
 def try_merge(scanner_a, scanner_b):
@@ -75,7 +80,7 @@ def part_b(data):
                 break
 
     distances = []
-    for a, b in itertools.permutations(positions, 2):
+    for a, b in it.permutations(positions, 2):
         distances.append(sum([abs(a[0] - b[0]), abs(a[1] - b[1]), abs(a[2] - b[2])]))
 
     return max(distances)
@@ -223,17 +228,21 @@ def main():
     example_solution_a = 79
     example_solution_b = 3621
 
-    example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
+    # example_answer_a = part_a(example_data)
+    # assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
 
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
+    # answer_a = part_a(data)
+    # submit(answer=answer_a, part="a")
 
+    start = time.perf_counter_ns()
     example_answer_b = part_b(example_data)
+    end = time.perf_counter_ns()
     assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
 
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    # answer_b = part_b(data)
+    # submit(answer=answer_b, part="b")
+
+    print(f"duration: {(end - start) / 1E6} ms")
 
 
 if __name__ == '__main__':
