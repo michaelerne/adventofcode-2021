@@ -1,4 +1,3 @@
-import time
 from functools import cache
 
 from aocd import get_data, submit
