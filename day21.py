@@ -8,7 +8,7 @@ def parse_data(data):
     return [x.fixed[1] for x in parse.findall('Player {:d} starting position: {:d}', data)]
 
 
-def d_die():
+def deterministic_die():
     face = 1
     while True:
         yield face
@@ -20,7 +20,7 @@ def d_die():
 def part_a(data):
     start = parse_data(data)
 
-    die = d_die()
+    die = deterministic_die()
     pos_1, pos_2, score_1, score_2 = start[0] - 1, start[1] - 1, 0, 0
     rolls = 0
     while True:
