@@ -4,12 +4,14 @@ import time
 from aocd import get_data, submit
 from tqdm import tqdm
 
-days_solved = 20
+days_solved = 21
 
 
 def main():
     timings = {}
     for day in tqdm(range(1, days_solved + 1), desc="Solving AoC2021", unit="day"):
+        if day == 19:
+            continue
         d = importlib.import_module(f'day{str(day).zfill(2)}')
 
         data = get_data(day=day)
