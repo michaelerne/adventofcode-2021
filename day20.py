@@ -1,4 +1,4 @@
-from functools import cache
+import time
 
 from aocd import get_data, submit
 
@@ -18,44 +18,48 @@ def parse_data(data):
     return algo, image
 
 
-@cache
-def get_neighbors(x, y):
-    return [(x + dx, y + dy) for (dx, dy) in D_XY]
+def step(algo, image, default):
+    rows = []
+    cols = []
+    for pixel in image:
+        rows.append(pixel[0])
+        cols.append(pixel[1])
 
+    x_min = min(rows)
+    x_max = max(rows)
+    y_min = min(cols)
+    y_max = max(cols)
 
-def step(algo, image, x_range, y_range, default):
     new_image = set()
-    x_min, x_max = x_range[0], x_range[-1]
-    y_min, y_max = y_range[0], y_range[-1]
 
-    x_range = range(x_range[0] - 3, x_range[-1] + 4)
-    y_range = range(y_range[0] - 3, y_range[-1] + 4)
-
-    for x in x_range:
-        for y in y_range:
+    for x in range(x_min - 3, x_max + 4):
+        for y in range(y_min - 3, y_max + 4):
             idx = 0
-            for n, (nx, ny) in enumerate(reversed(get_neighbors(x, y))):
-                if x_min <= nx <= x_max and y_min <= ny <= y_max:
-                    if (nx, ny) in image:
-                        idx += 2 ** n
-                else:
-                    if default:
-                        idx += 2 ** n
+            n = -1
+            for ny in (y + 1, y, y - 1):
+                for nx in (x + 1, x, x - 1):
+                    n += 1
+                    if x_min <= nx <= x_max and y_min <= ny <= y_max:
+                        if (nx, ny) in image:
+                            idx += 2 ** n
+                    else:
+                        if default:
+                            idx += 2 ** n
+
             if idx in algo:
                 new_image.add((x, y))
 
     default = (511 if default else 0) in algo
 
-    return new_image, y_range, y_range, default
+    return frozenset(new_image), default
 
 
 def enhance(algo, image, times):
     default = False
-    x_range = range(max(image, key=lambda x: x[0])[0] + 1)
-    y_range = range(max(image, key=lambda x: x[1])[1] + 1)
 
+    image = frozenset(image)
     for _ in range(times):
-        image, x_range, y_range, default = step(algo, image, x_range, y_range, default)
+        image, default = step(algo, image, default)
 
     return image
 
