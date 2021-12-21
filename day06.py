@@ -1,5 +1,6 @@
 from typing import List
-from aocd import get_data, submit
+
+from run_util import run_puzzle
 
 
 def parse_data(data: str) -> List[int]:
@@ -36,23 +37,11 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    example_data = """3,4,3,1,2"""
-    example_solution_a = 5934
-    example_solution_b = 26984457539
-
-    example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_solution_a} != {example_answer_a}"
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    example_answer_b = part_b(example_data)
-    assert example_answer_b == example_solution_b, "example_data did not match for part_b"
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    examples = [
+        ("""3,4,3,1,2""", 5934, 26984457539)
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

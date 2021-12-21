@@ -1,4 +1,4 @@
-from aocd import get_data, submit
+from run_util import run_puzzle
 
 
 def parse_data(data):
@@ -65,6 +65,7 @@ def points_to_text(points):
         '0,0;0,1;0,2;0,3;0,4;0,5;1,0;1,3;2,0;2,3;2,4;3,1;3,2;3,5': 'R',
         '0,0;0,1;0,2;0,3;0,4;1,5;2,5;3,0;3,1;3,2;3,3;3,4': 'U',
         '0,0;0,4;0,5;1,0;1,3;1,5;2,0;2,2;2,5;3,0;3,1;3,5': 'Z',
+        '0,0;0,1;0,2;0,3;0,4;1,0;1,4;2,0;2,4;3,0;3,4;4,0;4,1;4,2;4,3;4,4': 'O',
     }
     for x_gap in range(max_x // 5 + 1):
         char_points = set()
@@ -75,17 +76,18 @@ def points_to_text(points):
         char_points = {(x - x_gap * 5, y) for x, y in char_points}
 
         index = hash(char_points)
-        if index not in lookup:
-            print("Missing entry:\n")
-            print_points(char_points)
-            letter = input('Which Character is this? ')
-            print()
-            print("please add the following line to the lookup dict:")
-            letter_hash = hash(char_points)
-            print(f"    '{letter_hash}': '{letter}',")
-            lookup[letter_hash] = letter
+        if index:
+            if index not in lookup:
+                print("Missing entry:\n")
+                print_points(char_points)
+                letter = input('Which Character is this? ')
+                print()
+                print("please add the following line to the lookup dict:")
+                letter_hash = hash(char_points)
+                print(f"    '{letter_hash}': '{letter}',")
+                lookup[letter_hash] = letter
 
-        text += lookup[index]
+            text += lookup[index]
 
     return text
 
@@ -100,9 +102,8 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    example_data = """6,10
+    examples = [
+        ("""6,10
 0,14
 9,10
 0,3
@@ -122,21 +123,10 @@ def main():
 9,0
 
 fold along y=7
-fold along x=5"""
-    example_solution_a = 17
-    example_solution_b = '0'
-
-    example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    # example_answer_b = part_b(example_data)
-    # assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+fold along x=5""", 17, 'O')
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 from collections import defaultdict, deque
 
-from aocd import get_data, submit
+from run_util import run_puzzle
 
 
 def get_graph(data):
@@ -98,8 +98,6 @@ def part_b_rec(data):
 
 
 def main():
-    data = get_data()
-
     examples = [
         ("""start-A
 start-b
@@ -137,20 +135,8 @@ zg-he
 pj-fs
 start-RW""", 226, 3509)
     ]
-
-    for example_data, example_solution_a, example_solution_b in examples:
-        example_answer_a = part_a(example_data)
-        assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    for example_data, example_solution_a, example_solution_b in examples:
-        example_answer_b = part_b(example_data)
-        assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

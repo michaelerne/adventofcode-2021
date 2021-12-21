@@ -1,7 +1,7 @@
 from math import ceil
 from typing import List, Callable
 
-from aocd import get_data, submit
+from run_util import run_puzzle
 
 
 def binary_to_decimal(input: List[int]) -> int:
@@ -52,13 +52,22 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    examples = [
+        ("""00100
+11110
+10110
+10111
+10101
+01111
+00111
+11100
+10000
+11001
+00010
+01010""", 198, 230)
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 from collections import deque
 
-from aocd import get_data, submit
+from run_util import run_puzzle
 
 D_XY = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, +1), (1, -1), (1, 0), (1, 1)]  # (0, 0) omitted
 
@@ -64,9 +64,8 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    example_data = """5483143223
+    examples = [
+        ("""5483143223
 2745854711
 5264556173
 6141336146
@@ -75,21 +74,10 @@ def main():
 2176841721
 6882881134
 4846848554
-5283751526"""
-    example_solution_a = 1656
-    example_solution_b = 195
-
-    example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    example_answer_b = part_b(example_data)
-    assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+5283751526""", 1656, 195)
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

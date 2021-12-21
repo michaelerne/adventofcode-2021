@@ -4,7 +4,7 @@ from ast import literal_eval
 from functools import reduce
 from multiprocessing import Pool
 
-from aocd import get_data, submit
+from run_util import run_puzzle
 
 
 def parse_data(data):
@@ -168,9 +168,8 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    example_data = """[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
+    examples = [
+        ("""[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
 [[[5,[2,8]],4],[5,[[9,9],0]]]
 [6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
 [[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
@@ -179,21 +178,10 @@ def main():
 [[[[5,4],[7,7]],8],[[8,3],8]]
 [[9,3],[[9,9],[6,[4,9]]]]
 [[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
-[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]"""
-    example_solution_a = 4140
-    example_solution_b = 3993
-
-    example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    example_answer_b = part_b(example_data)
-    assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]""", 4140, 3993)
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,8 @@ from itertools import repeat
 from typing import Tuple
 
 import parse
-from aocd import get_data, submit
+
+from run_util import run_puzzle
 
 Point = Tuple[int, int]
 
@@ -59,13 +60,20 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    examples = [
+        ("""0,9 -> 5,9
+8,0 -> 0,8
+9,4 -> 3,4
+2,2 -> 2,1
+7,0 -> 7,4
+6,4 -> 2,0
+0,9 -> 2,9
+3,4 -> 1,4
+0,0 -> 8,8
+5,5 -> 8,2""", 5, 12)
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

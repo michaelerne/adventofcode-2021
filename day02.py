@@ -1,4 +1,4 @@
-from aocd import get_data, submit
+from run_util import run_puzzle
 
 
 def part_a(data):
@@ -44,13 +44,17 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
+    examples = [
+        ("""forward 5
+down 5
+forward 8
+up 3
+down 8
+forward 2""", 150, 900)
+    ]
 
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':

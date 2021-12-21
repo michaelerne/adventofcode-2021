@@ -1,7 +1,8 @@
 import itertools
 
 import parse
-from aocd import get_data, submit
+
+from run_util import run_puzzle
 
 
 def parse_data(data):
@@ -67,24 +68,12 @@ def part_b(data):
 
 
 def main():
-    data = get_data()
-
-    example_data = """Player 1 starting position: 4
-Player 2 starting position: 8"""
-    example_solution_a = 739785
-    example_solution_b = 444356092776315
-
-    example_answer_a = part_a(example_data)
-    assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
-
-    answer_a = part_a(data)
-    submit(answer=answer_a, part="a")
-
-    example_answer_b = part_b(example_data)
-    assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
-
-    answer_b = part_b(data)
-    submit(answer=answer_b, part="b")
+    examples = [
+        ("""Player 1 starting position: 4
+Player 2 starting position: 8""", 739785, 444356092776315)
+    ]
+    day = int(__file__.split('/')[-1].split('.')[0][-2:])
+    run_puzzle(day, part_a, part_b, examples)
 
 
 if __name__ == '__main__':
