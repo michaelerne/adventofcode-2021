@@ -18,15 +18,17 @@ def run_puzzle(day, part_a, part_b, examples):
     start = time.process_time_ns()
 
     for example_data, example_solution_a, _ in examples:
-        example_answer_a = _run_part(day, 'example part_a', part_a, example_data)
-        assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
+        if example_solution_a:
+            example_answer_a = _run_part(day, 'example part_a', part_a, example_data)
+            assert example_answer_a == example_solution_a, f"example_data did not match for part_a: {example_answer_a} != {example_solution_a}"
 
     answer_a = _run_part(day, 'puzzle part_a', part_a, data)
     submit(answer=answer_a, day=day, part="a")
 
     for example_data, _, example_solution_b in examples:
-        example_answer_b = _run_part(day, 'example part_b', part_b, example_data)
-        assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
+        if example_solution_b:
+            example_answer_b = _run_part(day, 'example part_b', part_b, example_data)
+            assert example_answer_b == example_solution_b, f"example_data did not match for part_b: {example_answer_b} != {example_solution_b}"
 
     answer_b = _run_part(day, 'puzzle part_b', part_b, data)
     submit(answer=answer_b, day=day, part="b")
