@@ -21,13 +21,13 @@ def parse_data(data):
 
 
 def get_subrange(range_1, range_2):
-    start_1, end_1 = range_1[0], range_1[-1]
-    start_2, end_2 = range_2[0], range_2[-1]
+    start_1, end_1 = range_1.start, range_1.stop
+    start_2, end_2 = range_2.start, range_2.stop
 
     if end_1 < start_2 or start_1 > end_2:
         return range(0)
 
-    return range(min(max(start_1, start_2), end_2), min(max(end_1, start_2), end_2) + 1)
+    return range(min(max(start_1, start_2), end_2), min(max(end_1, start_2), end_2))
 
 
 def get_overlap(r1, r2):
@@ -62,12 +62,16 @@ def part_a(data):
 
     boundary = (range(-50, 50 + 1), range(-50, 50 + 1), range(-50, 50 + 1))
 
-    cubes = {}
-    for state, ranges in remaining_instructions:
-        for x, y, z in itertools.product(*get_overlap(ranges, boundary)):
-            cubes[(x, y, z)] = state
+    answer = 0
 
-    answer = sum(cubes.values())
+    while remaining_instructions:
+        instruction, *remaining_instructions = remaining_instructions
+        state, ranges = instruction
+        if not state:
+            continue
+        ranges = get_overlap(ranges, boundary)
+        instruction = state, ranges
+        answer += count_unique(instruction, remaining_instructions)
 
     return answer
 
@@ -78,7 +82,7 @@ def part_b(data):
 
     while remaining_instructions:
         instruction, *remaining_instructions = remaining_instructions
-        state, *_ = instruction
+        state, _ = instruction
         if not state:
             continue
         answer += count_unique(instruction, remaining_instructions)
