@@ -4,7 +4,7 @@ import time
 from aocd import get_data, submit
 from tqdm import tqdm
 
-days_solved = 21
+days_solved = 22
 
 
 def main():
