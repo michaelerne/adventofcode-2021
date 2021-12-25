@@ -161,8 +161,9 @@ def magnitude_add(a, b):
 def part_b(data):
     lines = parse_data(data)
 
-    with Pool(8) as pool:
-        magnitudes = pool.starmap(magnitude_add, itertools.permutations(lines, 2))
+    # with Pool(8) as pool:
+    #     magnitudes = pool.starmap(magnitude_add, itertools.permutations(lines, 2))
+    magnitudes = [magnitude(add(a, b)) for a, b in itertools.permutations(lines, 2)]
 
     return max(magnitudes)
 
