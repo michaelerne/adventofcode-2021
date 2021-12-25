@@ -1,89 +1,147 @@
-import itertools as it
-
-import parse
+from collections import defaultdict
+from itertools import combinations
+from math import sqrt
 
 from run_util import run_puzzle
 
 
-def get_scanners(data):
-    scanners = data.split('\n\n')
-
-    return [[(x, y, z) for x, y, z in parse.findall('{:d},{:d},{:d}', scanner)] for scanner in scanners]
-
-
-POS_POSITIVE = [(0, 1, 2), (1, 2, 0), (2, 0, 1)]
-SIGN_POSITIVE = [(1, 1, 1), (-1, -1, 1), (-1, 1, -1)]
-POS_NEGATIVE = [(0, 2, 1), (1, 0, 2), (2, 1, 0)]
-SIGN_NEGATIVE = [(-1, 1, 1), (1, -1, 1), (1, 1, -1), (-1, -1, -1)]
-PERM_24 = list(it.chain(it.product(POS_POSITIVE, SIGN_POSITIVE), it.product(POS_NEGATIVE, SIGN_NEGATIVE)))
-
-
-def scanner_permutations(scanner):
-    for (x_pos, y_pos, z_pos), (x_sign, y_sign, z_sign) in PERM_24:
-        yield [(pos[x_pos] * x_sign, pos[y_pos] * y_sign, pos[z_pos] * z_sign) for pos in scanner]
+def parse_data(data):
+    scanners = [
+        tuple(
+            tuple(
+                int(num)
+                for num in scanner_line.split(',')
+            )
+            for scanner_line in scanner.split("\n")[1:])
+        for scanner in data.split("\n\n")
+    ]
+    return scanners
 
 
-def try_merge(scanner_a, scanner_b):
-    a_set = set(scanner_a)
+def euclidean_distance(p1, p2):
+    dx = p1[0] - p2[0]
+    dy = p1[1] - p2[1]
+    dz = p1[2] - p2[2]
 
-    for b in scanner_permutations(scanner_b):
-        for a_pos in scanner_a:
-            for b_pos in b:
-                offset = [b_pos[0] - a_pos[0], b_pos[1] - a_pos[1], b_pos[2] - a_pos[2]]
-                b_set = {(b_pos2[0] - offset[0], b_pos2[1] - offset[1], b_pos2[2] - offset[2]) for b_pos2 in b}
-                matches = len(a_set & b_set)
-                if matches >= 12:
-                    return True, list(a_set | b_set), offset
-    return False, None, None
+    return int(sqrt(dx ** 2 + dy ** 2 + dz ** 2))
+
+
+def manhattan_distance(p1, p2):
+    dx = p1[0] - p2[0]
+    dy = p1[1] - p2[1]
+    dz = p1[2] - p2[2]
+
+    return abs(dx) + abs(dy) + abs(dz)
+
+
+def get_number_of_common_points(config_1, config_2):
+    return max(
+        [
+            len(config_1[p0].intersection(config_2[p1]))
+            for p0 in config_1
+            for p1 in config_2
+        ]
+    )
+
+
+def get_config(sensor_data):
+    config = defaultdict(set)
+    for p1 in sensor_data:
+        for p2 in sensor_data:
+            config[p1].add(euclidean_distance(p1, p2))
+        config[p1].remove(0)
+
+    return config
+
+
+def align_configs(config1, config2):
+    mapping = {}
+    for p1 in config1:
+        for p2 in config2:
+            if len(config1[p1].intersection(config2[p2])) > 10:
+                mapping[p1] = p2
+
+    cog_1_x = sum([k[0] for k in mapping.keys()]) / len(mapping.keys())
+    cog_1_y = sum([k[1] for k in mapping.keys()]) / len(mapping.keys())
+    cog_1_z = sum([k[2] for k in mapping.keys()]) / len(mapping.keys())
+
+    cog_2_x = sum([k[0] for k in mapping.values()]) / len(mapping.values())
+    cog_2_y = sum([k[1] for k in mapping.values()]) / len(mapping.values())
+    cog_2_z = sum([k[2] for k in mapping.values()]) / len(mapping.values())
+
+    p1 = list(mapping.keys())[0]
+    p2 = mapping[p1]
+
+    p1_mod = (round(p1[0] - cog_1_x), round(p1[1] - cog_1_y), round(p1[2] - cog_1_z))
+    p2_mod = (round(p2[0] - cog_2_x), round(p2[1] - cog_2_y), round(p2[2] - cog_2_z))
+
+    rotation = {}
+    for i in range(3):
+        idx = list(map(abs, p2_mod)).index(abs(p1_mod[i]))
+        rotation[i] = (idx, p1_mod[i] // p2_mod[idx])
+
+    p2_rot = [0] * 3
+    for i in range(3):
+        p2_rot[i] = p2[rotation[i][0]] * rotation[i][1]
+
+    translation = []
+    for i in range(3):
+        translation.append(p2_rot[i] - p1[i])
+
+    return rotation, translation
+
+
+def transform_points(rotation, translation, points):
+    new_points = set()
+
+    for point in points:
+        new_points.add(
+            tuple(
+                point[rotation[i][0]] * rotation[i][1] - translation[i]
+                for i in range(3)
+            )
+        )
+
+    return new_points
+
+
+def align_scanners(scanners):
+    grid = set(scanners.pop(0))
+
+    scanners_config = {scanner: get_config(scanner) for scanner in scanners}
+
+    scanner_positions = []
+    while len(scanners) > 0:
+        grid_config = get_config(grid)
+        scanners_common_points = [
+            get_number_of_common_points(grid_config, scanners_config[scanner]) for scanner in scanners
+        ]
+
+        most_overlapping_scanner_idx = scanners_common_points.index(max(scanners_common_points))
+
+        rotation, translation = align_configs(grid_config, scanners_config[scanners[most_overlapping_scanner_idx]])
+        grid.update(transform_points(rotation, translation, scanners[most_overlapping_scanner_idx]))
+
+        del scanners[most_overlapping_scanner_idx]
+        scanner_positions.append(translation)
+
+    return grid, scanner_positions
 
 
 def part_a(data):
-    scanners = get_scanners(data)
+    scanners = parse_data(data)
 
-    aligned_idx = 0
-    unaligned_idx = {*list(range(1, len(scanners)))}
+    grid, scanner_positions = align_scanners(scanners)
 
-    next_idx = len(scanners)
-
-    while unaligned_idx:
-        for s2_idx in unaligned_idx:
-            success, s3, _ = try_merge(scanners[aligned_idx], scanners[s2_idx])
-            if success:
-                unaligned_idx.remove(s2_idx)
-                scanners.append(s3)
-                aligned_idx = next_idx
-                next_idx += 1
-                break
-
-    return len(scanners[-1])
+    return len(grid)
 
 
 def part_b(data):
-    scanners = get_scanners(data)
+    scanners = parse_data(data)
 
-    aligned_idx = 0
-    unaligned_idx = {*list(range(1, len(scanners)))}
+    grid, scanner_positions = align_scanners(scanners)
 
-    next_idx = len(scanners)
-
-    positions = [(0, 0, 0)]
-
-    while unaligned_idx:
-        for s2_idx in unaligned_idx:
-            success, s3, s2_pos = try_merge(scanners[aligned_idx], scanners[s2_idx])
-            if success:
-                unaligned_idx.remove(s2_idx)
-                scanners.append(s3)
-                aligned_idx = next_idx
-                positions.append(s2_pos)
-                next_idx += 1
-                break
-
-    distances = []
-    for a, b in it.permutations(positions, 2):
-        distances.append(sum([abs(a[0] - b[0]), abs(a[1] - b[1]), abs(a[2] - b[2])]))
-
-    return max(distances)
+    return max([manhattan_distance(pos_1, pos_2) for pos_1, pos_2 in combinations(scanner_positions, 2)])
 
 
 def main():
