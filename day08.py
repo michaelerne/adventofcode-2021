@@ -19,15 +19,15 @@ def get_mapping(signals):
     segments: Dict[Segment, Set[str]] = {}
 
     for signal in signals:
-        match len(signal):
-            case 2:
-                mapping[1] = signal
-            case 3:
-                mapping[7] = signal
-            case 4:
-                mapping[4] = signal
-            case 7:
-                mapping[8] = signal
+        signal_length = len(signal)
+        if signal_length == 2:
+            mapping[1] = signal
+        elif signal_length == 3:
+            mapping[7] = signal
+        elif signal_length == 4:
+            mapping[4] = signal
+        elif signal_length == 7:
+            mapping[8] = signal
 
     segments[Segment.TOP] = mapping[7] - mapping[4]
     mapping[3] = next(pattern for pattern in signals if len(pattern) == 5 and mapping[1] <= pattern)

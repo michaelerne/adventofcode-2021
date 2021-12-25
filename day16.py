@@ -57,23 +57,22 @@ def parse(bits) -> Tuple[Packet, Bits]:
 def eval_packet(packet: Packet) -> int:
     v, t, literal_value, subpackets = packet
     subpacket_values = [eval_packet(packet) for packet in subpackets]
-    match t:
-        case 0:
-            return sum(subpacket_values)
-        case 1:
-            return prod(subpacket_values)
-        case 2:
-            return min(subpacket_values)
-        case 3:
-            return max(subpacket_values)
-        case 4:
-            return literal_value
-        case 5:
-            return subpacket_values[0] > subpacket_values[1]
-        case 6:
-            return subpacket_values[0] < subpacket_values[1]
-        case 7:
-            return subpacket_values[0] == subpacket_values[1]
+    if t == 0:
+        return sum(subpacket_values)
+    if t == 1:
+        return prod(subpacket_values)
+    if t == 2:
+        return min(subpacket_values)
+    if t == 3:
+        return max(subpacket_values)
+    if t == 4:
+        return literal_value
+    if t == 5:
+        return subpacket_values[0] > subpacket_values[1]
+    if t == 6:
+        return subpacket_values[0] < subpacket_values[1]
+    if t == 7:
+        return subpacket_values[0] == subpacket_values[1]
 
 
 def part_a(data: str):

@@ -10,13 +10,12 @@ def part_a(data):
     horizontal = 0
 
     for instruction, amount in instructions:
-        match instruction:
-            case "forward":
-                horizontal += amount
-            case "down":
-                depth += amount
-            case "up":
-                depth -= amount
+        if instruction == "forward":
+            horizontal += amount
+        elif instruction == "down":
+            depth += amount
+        elif instruction == "up":
+            depth -= amount
 
     return depth * horizontal
 
@@ -31,14 +30,13 @@ def part_b(data):
     horizontal = 0
 
     for instruction, amount in instructions:
-        match instruction:
-            case "forward":
-                horizontal += amount
-                depth += aim * amount
-            case "down":
-                aim += amount
-            case "up":
-                aim -= amount
+        if instruction == "forward":
+            horizontal += amount
+            depth += aim * amount
+        elif instruction == "down":
+            aim += amount
+        elif instruction == "up":
+            aim -= amount
 
     return depth * horizontal
 

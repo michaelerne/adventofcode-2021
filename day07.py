@@ -1,4 +1,4 @@
-from functools import cache
+from functools import lru_cache
 from statistics import median
 
 from run_util import run_puzzle
@@ -13,7 +13,7 @@ def part_a(data):
 def part_b(data):
     positions = [int(x) for x in data.strip().split(',')]
 
-    @cache
+    @lru_cache(maxsize=None)
     def cost_fn(d):
         return d * (d + 1) // 2
 
