@@ -4,7 +4,7 @@ import time
 from aocd import get_data, submit
 from tqdm import tqdm
 
-days_solved = 22
+days_solved = 25
 
 
 def main():
@@ -20,14 +20,14 @@ def main():
         answer_a = d.part_a(data)
         end = time.perf_counter_ns()
         timings[f'day{str(day).zfill(2)}_a'] = end - start
-
-        start = time.perf_counter_ns()
-        answer_b = d.part_b(data)
-        end = time.perf_counter_ns()
-        timings[f'day{str(day).zfill(2)}_b'] = end - start
-
         submit(answer_a, day=day, part='a', quiet=True, reopen=False)
-        submit(answer_b, day=day, part='b', quiet=True, reopen=False)
+
+        if day != 25:
+            start = time.perf_counter_ns()
+            answer_b = d.part_b(data)
+            end = time.perf_counter_ns()
+            timings[f'day{str(day).zfill(2)}_b'] = end - start
+            submit(answer_b, day=day, part='b', quiet=True, reopen=False)
 
     print()
     print("timings:")

@@ -44,7 +44,7 @@ def part_a(data):
     step = 0
 
     while True:
-        print_grid(step, eastbound, southbound, x_max, y_max)
+        # print_grid(step, eastbound, southbound, x_max, y_max)
 
         step += 1
         moved = 0
